@@ -808,29 +808,64 @@ const responseGuides = {
                 </button>
 
                 {openExecutiveSections.perfil && (
-                  <div className="h-[650px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RadarChart data={radarData} outerRadius="60%">
-                        <PolarGrid stroke="#52525B" />
-                        <PolarAngleAxis
-                          dataKey="pillar"
-                          tick={{ fill: '#FFFFFF', fontSize: 13, fontWeight: 600 }}
-                        />
-                        <PolarRadiusAxis
-                          angle={30}
-                          domain={[0, 5]}
-                          tick={{ fill: '#FFFFFF', fontSize: 12 }}
-                        />
-                        <Radar
-                          name="Madurez"
-                          dataKey="score"
-                          stroke="#F59E0B"
-                          fill="#F59E0B"
-                          fillOpacity={0.45}
-                        />
-                      </RadarChart>
-                    </ResponsiveContainer>
-                  </div>
+                  <div className="h-[720px] w-full">
+  <ResponsiveContainer width="100%" height="100%">
+    <RadarChart
+      data={radarData}
+      outerRadius="52%"
+      margin={{ top: 50, right: 120, bottom: 50, left: 120 }}
+    >
+      <PolarGrid stroke="#52525B" />
+
+      <PolarAngleAxis
+        dataKey="pillar"
+        tick={({ payload, x, y, textAnchor }) => {
+          const words = payload.value.split(' ');
+
+          const lines = [];
+          for (let i = 0; i < words.length; i += 2) {
+            lines.push(words.slice(i, i + 2).join(' '));
+          }
+
+          return (
+            <text
+              x={x}
+              y={y}
+              textAnchor={textAnchor}
+              fill="#FFFFFF"
+              fontSize={11}
+              fontWeight={600}
+            >
+              {lines.map((line, index) => (
+                <tspan
+                  key={index}
+                  x={x}
+                  dy={index === 0 ? 0 : 14}
+                >
+                  {line}
+                </tspan>
+              ))}
+            </text>
+          );
+        }}
+      />
+
+      <PolarRadiusAxis
+        angle={30}
+        domain={[0, 5]}
+        tick={{ fill: '#FFFFFF', fontSize: 11 }}
+      />
+
+      <Radar
+        name="Madurez"
+        dataKey="score"
+        stroke="#F59E0B"
+        fill="#F59E0B"
+        fillOpacity={0.45}
+      />
+    </RadarChart>
+  </ResponsiveContainer>
+</div>
                 )}
               </div>
 
