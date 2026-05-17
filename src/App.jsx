@@ -808,12 +808,12 @@ const responseGuides = {
                 </button>
 
                 {openExecutiveSections.perfil && (
-                  <div className="h-[860px] w-full">
+                  <div className="h-[950px] w-full">
   <ResponsiveContainer width="100%" height="100%">
     <RadarChart
       data={radarData}
-      outerRadius="60%"
-      margin={{ top: 120, right: 220, bottom: 120, left: 220 }}
+      outerRadius="72%"
+      margin={{ top: 120, right: 260, bottom: 120, left: 260 }}
     >
       <PolarGrid stroke="#52525B" />
 
@@ -833,14 +833,14 @@ const responseGuides = {
               y={y}
               textAnchor={textAnchor}
               fill="#F4F4F5"
-              fontSize={15}
-              fontWeight={600}
+              fontSize={16}
+              fontWeight={700}
             >
               {lines.map((line, index) => (
                 <tspan
                   key={index}
                   x={x}
-                  dy={index === 0 ? 0 : 14}
+                  dy={index === 0 ? 0 : 18}
                 >
                   {line}
                 </tspan>
