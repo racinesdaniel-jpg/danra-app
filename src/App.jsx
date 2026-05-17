@@ -434,26 +434,26 @@ const responseGuides = {
 
     <div
       key={index}
-      className={`rounded-[32px] border bg-gradient-to-r ${item.color} p-8 shadow-2xl overflow-hidden`}
+      className={`rounded-[32px] border bg-gradient-to-r ${item.color} p-5 md:p-8 shadow-2xl overflow-hidden`}
     >
-      <div className="flex items-center justify-between gap-6">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
 
-        <div className="flex items-center gap-8 flex-1">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-5 md:gap-8 flex-1 w-full">
 
-          <div className="min-w-[90px] text-center">
-            <div className="text-6xl font-black leading-none">
+          <div className="min-w-[60px] md:min-w-[90px] text-left md:text-center">
+            <div className="text-4xl md:text-6xl font-black leading-none">
               {item.number}
             </div>
           </div>
 
-          <div className="w-px self-stretch bg-white/20" />
+          <div className="hidden md:block w-px self-stretch bg-white/20" />
 
           <div className="flex-1">
-            <h3 className="text-2xl font-bold mb-2 text-white tracking-tight">
+            <h3 className="text-xl md:text-2xl font-bold mb-2 text-white tracking-tight break-words">
               {item.title}
             </h3>
 
-            <p className="text-base leading-relaxed text-zinc-100 max-w-5xl">
+            <p className="text-sm md:text-base leading-relaxed text-zinc-100 max-w-5xl break-words">
               {item.description}
             </p>
           </div>
