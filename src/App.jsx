@@ -256,6 +256,24 @@ const responseGuides = {
 
   const [answers, setAnswers] = useState({});
 
+  const [organizationData, setOrganizationData] = useState({
+    empresa: '',
+    giro: '',
+    contacto: '',
+    cargo: '',
+    numero: '',
+    correo: '',
+    fecha: '',
+    colaboradores: ''
+  });
+
+  const handleOrganizationData = (field, value) => {
+    setOrganizationData((prev) => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   const handleAnswer = (pillar, question, value) => {
     setAnswers((prev) => ({
       ...prev,
@@ -288,12 +306,13 @@ const responseGuides = {
 
   const pages = [
     'Instrucciones',
+    'Datos de la Organización',
     'Diagnóstico',
     'Resumen Ejecutivo',
     'Descriptores de Nivel'
   ];
 
-  const [activePage, setActivePage] = useState('Diagnóstico');
+  const [activePage, setActivePage] = useState('Instrucciones');
 
   const radarData = pillars.map((pillar) => ({
     pillar: pillar.name,
@@ -360,76 +379,221 @@ const responseGuides = {
                 </div>
               </div>
 
-              <p className="mt-8 text-xl font-semibold text-white">
-                Escala oficial de respuesta:
-              </p>
+              <p className="mt-8 text-2xl font-semibold text-white mb-8">
+  Escala oficial de respuesta:
+</p>
 
-              <div className="mt-6 overflow-x-auto rounded-3xl border border-zinc-800">
-                <div className="min-w-[1000px]">
-                  <div className="grid grid-cols-2 bg-zinc-950 border-b border-zinc-800">
-                    <div className="p-5 font-semibold text-white border-r border-zinc-800">
-                      Nivel
-                    </div>
-                    <div className="p-5 font-semibold text-white">
-                      Descriptor Ejecutivo
-                    </div>
-                  </div>
+<div className="space-y-6 mt-8">
 
-                  {[
-                    {
-                      level: '1 — Reactivo',
-                      color: 'text-red-300 bg-red-950/40',
-                      description:
-                        'La empresa opera resolviendo urgencias. Sin estructura, sin procesos definidos y sin visibilidad operativa.'
-                    },
-                    {
-                      level: '2 — Inicial',
-                      color: 'text-orange-300 bg-orange-950/40',
-                      description:
-                        'Existen algunos elementos básicos, pero son informales, inconsistentes o dependen de personas específicas.'
-                    },
-                    {
-                      level: '3 — Estructurado',
-                      color: 'text-yellow-300 bg-yellow-900/30',
-                      description:
-                        'La empresa cuenta con procesos definidos y seguimiento básico, aunque todavía existen brechas relevantes.'
-                    },
-                    {
-                      level: '4 — Gestionado',
-                      color: 'text-green-300 bg-green-900/30',
-                      description:
-                        'La operación funciona con métricas, control operativo, información confiable y dirección estratégica activa.'
-                    },
-                    {
-                      level: '5 — Optimizado',
-                      color: 'text-emerald-300 bg-emerald-900/30',
-                      description:
-                        'Empresa de alto desempeño con mejora continua, datos en tiempo real y capacidad de escalar sosteniblemente.'
-                    }
-                  ].map((item, index) => (
-                    <div
-                      key={index}
-                      className="grid grid-cols-2 border-t border-zinc-800"
-                    >
-                      <div
-                        className={`p-6 text-2xl font-bold border-r border-zinc-800 ${item.color}`}
-                      >
-                        {item.level}
-                      </div>
+  {[
+    {
+      number: '1',
+      title: 'Reactivo',
+      color: 'from-red-950 via-red-900 to-red-950 border-red-700 text-red-300',
+      
+      description:
+        'La empresa opera resolviendo urgencias. Sin estructura, sin procesos definidos y sin visibilidad operativa.'
+    },
 
-                      <div className="p-6 text-zinc-300 leading-relaxed bg-zinc-900">
-                        {item.description}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+    {
+      number: '2',
+      title: 'Inicial',
+      color: 'from-orange-950 via-orange-900 to-orange-950 border-orange-700 text-orange-300',
+      
+      description:
+        'Existen algunos elementos básicos, pero son informales, inconsistentes o dependientes de personas.'
+    },
 
-              <p className="mt-8 text-zinc-300 leading-relaxed">
-                El resultado permitirá identificar riesgos operativos,
-                oportunidades estratégicas, brechas estructurales y capacidad de dirección operativa.
+    {
+      number: '3',
+      title: 'Estructurado',
+      color: 'from-yellow-950 via-yellow-900 to-yellow-950 border-yellow-700 text-yellow-300',
+      
+      description:
+        'La empresa tiene procesos definidos y seguimiento básico. Aún hay brechas relevantes.'
+    },
+
+    {
+      number: '4',
+      title: 'Gestionado',
+      color: 'from-green-950 via-green-900 to-green-950 border-green-700 text-green-300',
+      
+      description:
+        'Operación controlada con métricas, información confiable y dirección estratégica activa.'
+    },
+
+    {
+      number: '5',
+      title: 'Optimizado',
+      color: 'from-cyan-950 via-cyan-900 to-cyan-950 border-cyan-700 text-cyan-300',
+      
+      description:
+        'Empresa de alto desempeño. Mejora continua, datos en tiempo real y capacidad de escalar.'
+    }
+  ].map((item, index) => (
+
+    <div
+      key={index}
+      className={`rounded-[32px] border bg-gradient-to-r ${item.color} p-8 shadow-2xl overflow-hidden`}
+    >
+      <div className="flex items-center justify-between gap-6">
+
+        <div className="flex items-center gap-8 flex-1">
+
+          <div className="min-w-[90px] text-center">
+            <div className="text-6xl font-black leading-none">
+              {item.number}
+            </div>
+          </div>
+
+          <div className="w-px self-stretch bg-white/20" />
+
+          <div className="flex-1">
+            <h3 className="text-2xl font-bold mb-2 text-white tracking-tight">
+              {item.title}
+            </h3>
+
+            <p className="text-base leading-relaxed text-zinc-100 max-w-5xl">
+              {item.description}
+            </p>
+          </div>
+        </div>
+
+        
+      </div>
+    </div>
+
+  ))}
+
+</div>
+
+<p className="mt-10 text-zinc-300 leading-relaxed text-lg">
+  El resultado permitirá identificar riesgos operativos,
+  oportunidades estratégicas y capacidad de dirección operativa.
+</p>
+            </div>
+          </div>
+        )}
+
+        {activePage === 'Datos de la Organización' && (
+          <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800 mb-10">
+            <div className="mb-10">
+              <h2 className="text-3xl font-semibold mb-3">
+                Datos de la Organización
+              </h2>
+
+              <p className="text-zinc-400 text-lg leading-relaxed max-w-4xl">
+                Complete la información general de la organización para generar el informe ejecutivo final y realizar el envío automático del PDF al correo registrado.
               </p>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+              <div>
+                <label className="block text-zinc-300 mb-3 text-sm uppercase tracking-wide">
+                  Empresa
+                </label>
+                <input
+                  type="text"
+                  value={organizationData.empresa}
+                  onChange={(e) => handleOrganizationData('empresa', e.target.value)}
+                  className="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-amber-500"
+                  placeholder="Nombre de la empresa"
+                />
+              </div>
+
+              <div>
+                <label className="block text-zinc-300 mb-3 text-sm uppercase tracking-wide">
+                  Giro del Negocio
+                </label>
+                <input
+                  type="text"
+                  value={organizationData.giro}
+                  onChange={(e) => handleOrganizationData('giro', e.target.value)}
+                  className="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-amber-500"
+                  placeholder="Industria o actividad principal"
+                />
+              </div>
+
+              <div>
+                <label className="block text-zinc-300 mb-3 text-sm uppercase tracking-wide">
+                  Nombre del Contacto
+                </label>
+                <input
+                  type="text"
+                  value={organizationData.contacto}
+                  onChange={(e) => handleOrganizationData('contacto', e.target.value)}
+                  className="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-amber-500"
+                  placeholder="Nombre completo"
+                />
+              </div>
+
+              <div>
+                <label className="block text-zinc-300 mb-3 text-sm uppercase tracking-wide">
+                  Cargo
+                </label>
+                <input
+                  type="text"
+                  value={organizationData.cargo}
+                  onChange={(e) => handleOrganizationData('cargo', e.target.value)}
+                  className="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-amber-500"
+                  placeholder="Cargo del contacto"
+                />
+              </div>
+
+              <div>
+                <label className="block text-zinc-300 mb-3 text-sm uppercase tracking-wide">
+                  Número de Contacto
+                </label>
+                <input
+                  type="text"
+                  value={organizationData.numero}
+                  onChange={(e) => handleOrganizationData('numero', e.target.value)}
+                  className="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-amber-500"
+                  placeholder="Número telefónico"
+                />
+              </div>
+
+              <div>
+                <label className="block text-zinc-300 mb-3 text-sm uppercase tracking-wide">
+                  Correo Electrónico
+                </label>
+                <input
+                  type="email"
+                  value={organizationData.correo}
+                  onChange={(e) => handleOrganizationData('correo', e.target.value)}
+                  className="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-amber-500"
+                  placeholder="correo@empresa.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-zinc-300 mb-3 text-sm uppercase tracking-wide">
+                  Fecha de Evaluación
+                </label>
+                <input
+                  type="date"
+                  value={organizationData.fecha}
+                  onChange={(e) => handleOrganizationData('fecha', e.target.value)}
+                  className="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-zinc-300 mb-3 text-sm uppercase tracking-wide">
+                  Cantidad de Colaboradores
+                </label>
+                <input
+                  type="number"
+                  value={organizationData.colaboradores}
+                  onChange={(e) => handleOrganizationData('colaboradores', e.target.value)}
+                  className="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-amber-500"
+                  placeholder="Número de colaboradores"
+                />
+              </div>
+            </div>
+
+            
           </div>
         )}
 
@@ -540,74 +704,74 @@ const responseGuides = {
 
         {activePage === 'Resumen Ejecutivo' && (
           <>
-            <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800 mb-10">
-              <h2 className="text-3xl font-semibold mb-6">Resumen Ejecutivo</h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="border border-zinc-800 rounded-2xl p-6">
-                  <p className="text-zinc-500 mb-2">Madurez General</p>
-                  <h3 className="text-5xl font-bold text-amber-400 mb-3">
+            <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800 mb-10">
+              <h2 className="text-3xl font-semibold mb-10">
+                Resumen Ejecutivo
+              </h2>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+
+                <div className="border border-zinc-800 rounded-3xl p-8 bg-black/30">
+                  <p className="text-zinc-500 text-lg mb-3">
+                    General de Madurez
+                  </p>
+
+                  <div className="text-5xl font-black text-amber-400 mb-4">
                     {overallScore ? overallScore.toFixed(1) : '0.0'}
-                  </h3>
-                  <p className="text-xl text-zinc-300">
+                  </div>
+
+                  <p className="text-2xl text-white font-semibold">
                     {getMaturity(overallScore || 0)}
                   </p>
                 </div>
 
-                <div className="border border-zinc-800 rounded-2xl p-6">
-                  <p className="text-zinc-500 mb-4">Interpretación</p>
+                <div className="border border-zinc-800 rounded-3xl p-8 bg-black/30">
+                  <p className="text-zinc-500 text-lg mb-5">
+                    Interpretación
+                  </p>
 
-                  {!isAssessmentComplete ? (
-                    <p className="text-zinc-400 leading-relaxed">
-                      Una vez finalizada la evaluación de madurez operativa,
-                      se generará automáticamente la interpretación estratégica
-                      de resultados y el nivel de madurez de la organización.
-                    </p>
-                  ) : (
-                    <p className="text-zinc-300 leading-relaxed">
-                      La evaluación ha sido completada exitosamente.
-                    </p>
-                  )}
+                  <p className="text-zinc-300 text-lg leading-relaxed">
+                    Una vez finalizada la evaluación de madurez operativa, se generará automáticamente la interpretación estratégica de resultados y el nivel de madurez de la organización.
+                  </p>
                 </div>
               </div>
             </div>
 
-            <div className="mt-10 border border-zinc-800 rounded-3xl p-8 bg-zinc-950">
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h3 className="text-2xl font-semibold mb-2">
-                    Perfil de Madurez Operativa
-                  </h3>
-                  <p className="text-zinc-500">
-                    Visualización ejecutiva del desempeño por pilar estratégico
-                  </p>
-                </div>
-              </div>
+            <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800 mb-10">
+              <h2 className="text-3xl font-semibold mb-6">Resumen Ejecutivo</h2>
 
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
-                <div className="border border-zinc-800 rounded-3xl p-6 bg-zinc-950">
-                  <div className="h-[650px] w-full">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+
+                <div className="border border-zinc-800 rounded-3xl p-8 bg-black/40">
+                  <div className="h-[650px]">
                     <ResponsiveContainer width="100%" height="100%">
-                      <RadarChart data={radarData} outerRadius="75%">
-                        <PolarGrid stroke="#52525b" strokeWidth={1.2} />
+                      <RadarChart data={radarData}>
+                        <PolarGrid stroke="#52525B" />
 
                         <PolarAngleAxis
                           dataKey="pillar"
-                          tick={{ fill: '#fafafa', fontSize: 16, fontWeight: 700 }}
+                          tick={{
+                            fill: '#FFFFFF',
+                            fontSize: 16,
+                            fontWeight: 600
+                          }}
                         />
 
                         <PolarRadiusAxis
+                          angle={30}
                           domain={[0, 5]}
-                          tick={{ fill: '#f4f4f5', fontSize: 16, fontWeight: 700 }}
-                          axisLine={{ stroke: '#71717a' }}
+                          tick={{
+                            fill: '#FFFFFF',
+                            fontSize: 14
+                          }}
                         />
 
                         <Radar
                           name="Madurez"
                           dataKey="score"
-                          stroke="#f59e0b"
-                          strokeWidth={3}
-                          fill="#f59e0b"
+                          stroke="#F59E0B"
+                          fill="#F59E0B"
                           fillOpacity={0.45}
                         />
                       </RadarChart>
@@ -615,48 +779,60 @@ const responseGuides = {
                   </div>
                 </div>
 
-                <div className="space-y-5">
-                  <div>
-                    <h3 className="text-3xl font-semibold mb-2">
-                      Interpretación Estratégica por Pilar
-                    </h3>
-                    <p className="text-zinc-500 text-lg">
-                      Análisis ejecutivo de fortalezas, riesgos y oportunidades operativas.
-                    </p>
-                  </div>
+                <div>
+                  <h3 className="text-3xl font-bold mb-4">
+                    Interpretación Estratégica por Pilar
+                  </h3>
 
-                  {pillars.map((pillar, index) => {
-                    const score = calculatePillarScore(pillar);
+                  <p className="text-zinc-500 text-lg mb-8">
+                    Análisis ejecutivo de fortalezas, riesgos y oportunidades operativas.
+                  </p>
 
-                    const interpretation =
-                      score <= 2
-                        ? `El pilar ${pillar.name} presenta oportunidades relevantes de fortalecimiento operativo y estructuración.`
-                        : score <= 3.5
-                        ? `El pilar ${pillar.name} cuenta con capacidades parcialmente estructuradas, aunque todavía existen brechas de consolidación.`
-                        : `El pilar ${pillar.name} presenta un nivel sólido de madurez y capacidades operativas consolidadas.`;
+                  <div className="space-y-6">
 
-                    return (
-                      <div
-                        key={index}
-                        className="border border-zinc-800 rounded-3xl p-6 bg-zinc-950"
-                      >
-                        <div className="flex items-center justify-between mb-4">
-                          <h4 className="text-2xl font-semibold text-white">
-                            {pillar.name}
-                          </h4>
+                    {pillars.map((pillar, index) => {
+                      const score = calculatePillarScore(pillar);
 
-                          <div className="text-3xl font-bold text-amber-400">
-                            {score.toFixed(1)}
+                      return (
+                        <div
+                          key={index}
+                          className="border border-zinc-800 rounded-3xl p-8 bg-black/30"
+                        >
+                          <div className="flex justify-between items-start mb-4">
+
+                            <h4 className="text-2xl font-bold">
+                              {pillar.name}
+                            </h4>
+
+                            <div className="text-amber-400 text-3xl font-black">
+                              {score ? score.toFixed(1) : '0.0'}
+                            </div>
                           </div>
-                        </div>
 
-                        <p className="text-zinc-300 leading-relaxed text-lg">
-                          {interpretation}
-                        </p>
-                      </div>
-                    );
-                  })}
+                          <p className="text-zinc-300 text-lg leading-relaxed">
+                            El pilar {pillar.name} presenta oportunidades relevantes de fortalecimiento operativo y estructuración.
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
+              </div>
+
+              <div className="mt-10 border border-amber-700/30 rounded-3xl p-8 bg-gradient-to-br from-amber-950/40 to-zinc-950">
+                <h3 className="text-3xl font-semibold text-amber-400 mb-6">
+                  Generación de Informe Ejecutivo
+                </h3>
+
+                <p className="text-zinc-300 text-xl leading-relaxed max-w-5xl mb-10">
+                  Una vez finalizado el diagnóstico operativo, el sistema podrá generar automáticamente un informe ejecutivo en PDF con resultados, radar de madurez, interpretación estratégica y recomendaciones ejecutivas. Posteriormente el informe será enviado al correo registrado.
+                </p>
+
+                <button
+                  className="bg-amber-500 hover:bg-amber-400 transition-all text-black font-bold text-lg px-10 py-5 rounded-2xl shadow-2xl"
+                >
+                  Finalizar Evaluación y Generar Informe
+                </button>
               </div>
             </div>
           </>
