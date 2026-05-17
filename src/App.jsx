@@ -307,12 +307,19 @@ const responseGuides = {
   const pages = [
     'Instrucciones',
     'Datos de la Organización',
-    'Diagnóstico',
+    'Preguntas de Diagnóstico',
     'Resumen Ejecutivo',
     'Descriptores de Nivel'
   ];
 
   const [activePage, setActivePage] = useState('Instrucciones');
+  const [openPillar, setOpenPillar] = useState(null);
+  const [openExecutiveSections, setOpenExecutiveSections] = useState({
+    resumen: false,
+    perfil: false,
+    interpretacion: false,
+    escalera: false
+  });
 
   const radarData = pillars.map((pillar) => ({
     pillar: pillar.name,
@@ -471,6 +478,18 @@ const responseGuides = {
   El resultado permitirá identificar riesgos operativos,
   oportunidades estratégicas y capacidad de dirección operativa.
 </p>
+
+<div className="mt-10 flex justify-end">
+  <button
+    onClick={() => {
+      setActivePage('Datos de la Organización');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }}
+    className="bg-amber-500 hover:bg-amber-400 transition-all text-black font-semibold px-6 py-3 rounded-2xl shadow-lg"
+  >
+    Continuar a Datos de la Organización
+  </button>
+</div>
             </div>
           </div>
         )}
@@ -593,180 +612,215 @@ const responseGuides = {
               </div>
             </div>
 
+            <div className="mt-10 flex justify-end">
+              <button
+                onClick={() => {
+                setActivePage('Preguntas de Diagnóstico');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+                className="bg-amber-500 hover:bg-amber-400 transition-all text-black font-semibold px-6 py-3 rounded-2xl shadow-lg"
+              >
+                Continuar a Diagnóstico
+              </button>
+            </div>
+
             
           </div>
         )}
 
-        {activePage === 'Diagnóstico' && (
-          <>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-          <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800">
-            <p className="text-zinc-400 text-sm mb-2">Madurez General</p>
-            <h2 className="text-4xl font-semibold mb-3">
-              {overallScore ? overallScore.toFixed(1) : '0.0'}
-            </h2>
-            <p className="text-amber-400 text-lg">
-              {getMaturity(overallScore || 0)}
-            </p>
-          </div>
+        {activePage === 'Preguntas de Diagnóstico' && (
+          <div className="space-y-6">
+            {pillars.map((pillar, index) => {
+              const score = calculatePillarScore(pillar);
+              const isOpen = openPillar === index;
 
-          <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800 lg:col-span-2">
-            <h3 className="text-2xl mb-4">Visión Ejecutiva</h3>
-            <p className="text-zinc-400 leading-relaxed">
-              Esta evaluación permite identificar el nivel de madurez operativa,
-              estructura organizacional, capacidad de control y dirección
-              estratégica de la organización.
-            </p>
-          </div>
-        </div>
+              return (
+                <div
+                  key={index}
+                  className="bg-zinc-900 rounded-3xl border border-zinc-800 overflow-hidden"
+                >
+                  <button
+                    onClick={() => setOpenPillar(isOpen ? null : index)}
+                    className="w-full flex justify-between items-center p-8 hover:bg-zinc-800/30 transition-all text-left"
+                  >
+                    <div>
+                      <h2 className="text-2xl font-semibold mb-2">
+                        {pillar.name}
+                      </h2>
 
-            <div className="space-y-8">
-          {pillars.map((pillar, index) => {
-            const score = calculatePillarScore(pillar);
-
-            return (
-              <div
-                key={index}
-                className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800"
-              >
-                <div className="flex justify-between items-center mb-8">
-                  <div>
-                    <h2 className="text-2xl font-semibold mb-2">
-                      {pillar.name}
-                    </h2>
-                    <p className="text-zinc-500">
-                      Evaluación ejecutiva del pilar estratégico
-                    </p>
-                  </div>
-
-                  <div className="text-right">
-                    <p className="text-zinc-500 text-sm">Resultado</p>
-                    <h3 className="text-3xl font-bold text-amber-400">
-                      {score ? score.toFixed(1) : '0.0'}
-                    </h3>
-                    <p className="text-sm text-zinc-400 mt-1">
-                      {getMaturity(score || 0)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-6">
-                  {pillar.questions.map((question, qIndex) => (
-                    <div
-                      key={qIndex}
-                      className="border border-zinc-800 rounded-2xl p-6"
-                    >
-                      <p className="text-lg mb-5 leading-relaxed">
-                        {question}
+                      <p className="text-zinc-500">
+                        Evaluación ejecutiva del pilar estratégico
                       </p>
+                    </div>
 
-                      <div className="flex flex-wrap gap-3">
-                        {options.map((option, oIndex) => {
-                          const guide = responseGuides[question]?.[oIndex] || option.description;
-                          const selected =
-                            answers[`${pillar.name}-${question}`] === option.value;
+                    <div className="flex items-center gap-8">
+                      <div className="text-right">
+                        <p className="text-zinc-500 text-sm">Resultado</p>
 
-                          return (
-                            <button
-                              key={oIndex}
-                              onClick={() =>
-                                handleAnswer(
-                                  pillar.name,
-                                  question,
-                                  option.value
-                                )
-                              }
-                              className={`min-w-[85px] px-5 py-4 rounded-2xl transition-all border ${
-                                selected
-                                  ? 'bg-amber-500 text-black border-amber-500'
-                                  : 'bg-zinc-950 border-zinc-700 text-zinc-300 hover:border-zinc-500'
-                              }`}
-                            >
-                              <div className="text-2xl font-bold mb-1">
-                                {option.label}
-                              </div>
-                              <div className="text-xs opacity-90 leading-relaxed max-w-[140px]">
-                                {guide}
-                              </div>
-                            </button>
-                          );
-                        })}
+                        <h3 className="text-3xl font-bold text-amber-400">
+                          {score ? score.toFixed(1) : '0.0'}
+                        </h3>
+
+                        <p className="text-sm text-zinc-400 mt-1">
+                          {getMaturity(score || 0)}
+                        </p>
+                      </div>
+
+                      <div className="text-center">
+                        <div className="text-zinc-500 text-sm mb-1">
+                          {isOpen ? 'Ocultar preguntas' : 'Ver preguntas'}
+                        </div>
+
+                        <div className="text-3xl text-amber-400 font-bold">
+                          {isOpen ? '−' : '+'}
+                        </div>
                       </div>
                     </div>
-                  ))}
+                  </button>
+
+                  {isOpen && (
+                    <div className="px-8 pb-8 space-y-8 border-t border-zinc-800">
+                      {pillar.questions.map((question, qIndex) => (
+                        <div key={qIndex} className="pt-8">
+                          <h3 className="text-2xl font-medium mb-6 max-w-5xl leading-relaxed">
+                            {question}
+                          </h3>
+
+                          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                            {options.map((option) => (
+                              <button
+                                key={option.value}
+                                onClick={() =>
+                                  handleAnswer(
+                                    pillar.name,
+                                    question,
+                                    option.value
+                                  )
+                                }
+                                className={`rounded-3xl border p-6 text-left transition-all ${
+                                  answers[`${pillar.name}-${question}`] === option.value
+                                    ? 'border-amber-500 bg-amber-500/10'
+                                    : 'border-zinc-800 bg-black/30 hover:border-zinc-600'
+                                }`}
+                              >
+                                <div className="text-4xl font-black text-amber-400 mb-4">
+                                  {option.label}
+                                </div>
+
+                                <p className="text-zinc-300 leading-relaxed text-sm">
+                                  {responseGuides[question]?.[option.value - 1]}
+                                </p>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
-            );
-          })}
-        </div>
-          </>
+              );
+            })}
+
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => {
+                  setActivePage('Resumen Ejecutivo');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="bg-amber-500 hover:bg-amber-400 transition-all text-black font-semibold px-7 py-3 rounded-2xl shadow-lg"
+              >
+                Ver Resumen Ejecutivo
+              </button>
+            </div>
+          </div>
         )}
 
         {activePage === 'Resumen Ejecutivo' && (
-          <>
+          <div className="space-y-10">
 
-            <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800 mb-10">
-              <h2 className="text-3xl font-semibold mb-10">
-                Resumen Ejecutivo
-              </h2>
+            <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800">
+              <button
+                onClick={() => setOpenExecutiveSections(prev => ({ ...prev, resumen: !prev.resumen }))}
+                className="w-full flex justify-between items-center mb-6 text-left"
+              >
+                <h2 className="text-3xl font-semibold">
+                  Resumen General de Madurez
+                </h2>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                <div className="flex items-center gap-3 text-amber-400">
+                  <span className="text-sm uppercase tracking-wider">
+                    {openExecutiveSections.resumen ? 'Ocultar' : 'Ver más'}
+                  </span>
+                  <span className="text-3xl font-light">
+                    {openExecutiveSections.resumen ? '−' : '+'}
+                  </span>
+                </div>
+              </button>
 
-                <div className="border border-zinc-800 rounded-3xl p-8 bg-black/30">
-                  <p className="text-zinc-500 text-lg mb-3">
-                    General de Madurez
-                  </p>
-
-                  <div className="text-5xl font-black text-amber-400 mb-4">
-                    {overallScore ? overallScore.toFixed(1) : '0.0'}
+              {openExecutiveSections.resumen && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div className="border border-zinc-800 rounded-3xl p-8 bg-black/30">
+                    <p className="text-zinc-500 text-lg mb-3">General de Madurez</p>
+                    <div className="text-5xl font-black text-amber-400 mb-4">
+                      {overallScore ? overallScore.toFixed(1) : '0.0'}
+                    </div>
+                    <p className="text-2xl text-white font-semibold">
+                      {getMaturity(overallScore || 0)}
+                    </p>
                   </div>
 
-                  <p className="text-2xl text-white font-semibold">
-                    {getMaturity(overallScore || 0)}
-                  </p>
+                  <div className="border border-zinc-800 rounded-3xl p-8 bg-black/30">
+                    <p className="text-zinc-500 text-lg mb-5">Interpretación</p>
+                    <p className="text-zinc-300 text-lg leading-relaxed">
+                      {!isAssessmentComplete
+                        ? 'La interpretación ejecutiva estará disponible una vez completado el diagnóstico organizacional.'
+                        : 'DANRA ha identificado el nivel actual de madurez operativa y las oportunidades estratégicas prioritarias de evolución organizacional.'}
+                    </p>
+                  </div>
                 </div>
-
-                <div className="border border-zinc-800 rounded-3xl p-8 bg-black/30">
-                  <p className="text-zinc-500 text-lg mb-5">
-                    Interpretación
-                  </p>
-
-                  <p className="text-zinc-300 text-lg leading-relaxed">
-                    Una vez finalizada la evaluación de madurez operativa, se generará automáticamente la interpretación estratégica de resultados y el nivel de madurez de la organización.
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
 
-            <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800 mb-10">
-              <h2 className="text-3xl font-semibold mb-6">Resumen Ejecutivo</h2>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+              <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800">
+                <button
+                  onClick={() => setOpenExecutiveSections(prev => ({ ...prev, perfil: !prev.perfil }))}
+                  className="w-full flex justify-between items-center mb-6 text-left"
+                >
+                  <div>
+                    <h3 className="text-2xl font-bold text-white mb-2">
+                      Perfil Ejecutivo de Madurez Operativa
+                    </h3>
+                    <p className="text-zinc-500">
+                      Visualización consolidada del desempeño organizacional.
+                    </p>
+                  </div>
 
-                <div className="border border-zinc-800 rounded-3xl p-8 bg-black/40">
-                  <div className="h-[650px]">
+                  <div className="flex items-center gap-3 text-amber-400">
+                    <span className="text-sm uppercase tracking-wider">
+                      {openExecutiveSections.perfil ? 'Ocultar' : 'Ver más'}
+                    </span>
+                    <span className="text-3xl font-light">
+                      {openExecutiveSections.perfil ? '−' : '+'}
+                    </span>
+                  </div>
+                </button>
+
+                {openExecutiveSections.perfil && (
+                  <div className="h-[650px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                      <RadarChart data={radarData}>
+                      <RadarChart data={radarData} outerRadius="60%">
                         <PolarGrid stroke="#52525B" />
-
                         <PolarAngleAxis
                           dataKey="pillar"
-                          tick={{
-                            fill: '#FFFFFF',
-                            fontSize: 16,
-                            fontWeight: 600
-                          }}
+                          tick={{ fill: '#FFFFFF', fontSize: 13, fontWeight: 600 }}
                         />
-
                         <PolarRadiusAxis
                           angle={30}
                           domain={[0, 5]}
-                          tick={{
-                            fill: '#FFFFFF',
-                            fontSize: 14
-                          }}
+                          tick={{ fill: '#FFFFFF', fontSize: 12 }}
                         />
-
                         <Radar
                           name="Madurez"
                           dataKey="score"
@@ -777,71 +831,200 @@ const responseGuides = {
                       </RadarChart>
                     </ResponsiveContainer>
                   </div>
-                </div>
+                )}
+              </div>
 
-                <div>
-                  <h3 className="text-3xl font-bold mb-4">
-                    Interpretación Estratégica por Pilar
-                  </h3>
+              <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800">
+                <button
+                  onClick={() => setOpenExecutiveSections(prev => ({ ...prev, interpretacion: !prev.interpretacion }))}
+                  className="w-full flex justify-between items-start mb-6 text-left"
+                >
+                  <div>
+                    <h3 className="text-2xl font-bold mb-2">
+                      Interpretación Estratégica por Pilar
+                    </h3>
+                    <p className="text-zinc-500">
+                      Análisis ejecutivo de fortalezas y oportunidades.
+                    </p>
+                  </div>
 
-                  <p className="text-zinc-500 text-lg mb-8">
-                    Análisis ejecutivo de fortalezas, riesgos y oportunidades operativas.
-                  </p>
+                  <div className="flex items-center gap-3 text-amber-400">
+                    <span className="text-sm uppercase tracking-wider">
+                      {openExecutiveSections.interpretacion ? 'Ocultar' : 'Ver más'}
+                    </span>
+                    <span className="text-3xl font-light">
+                      {openExecutiveSections.interpretacion ? '−' : '+'}
+                    </span>
+                  </div>
+                </button>
 
+                {openExecutiveSections.interpretacion && (
                   <div className="space-y-6">
-
                     {pillars.map((pillar, index) => {
                       const score = calculatePillarScore(pillar);
 
                       return (
                         <div
                           key={index}
-                          className="border border-zinc-800 rounded-3xl p-8 bg-black/30"
+                          className="border border-zinc-800 rounded-3xl p-6 bg-black/30"
                         >
-                          <div className="flex justify-between items-start mb-4">
-
-                            <h4 className="text-2xl font-bold">
+                          <div className="flex justify-between items-start mb-4 gap-4">
+                            <h4 className="text-xl font-bold max-w-[80%]">
                               {pillar.name}
                             </h4>
 
-                            <div className="text-amber-400 text-3xl font-black">
+                            <div className="text-amber-400 text-3xl font-black whitespace-nowrap">
                               {score ? score.toFixed(1) : '0.0'}
                             </div>
                           </div>
 
-                          <p className="text-zinc-300 text-lg leading-relaxed">
-                            El pilar {pillar.name} presenta oportunidades relevantes de fortalecimiento operativo y estructuración.
+                          <p className="text-zinc-300 leading-relaxed">
+                            {!isAssessmentComplete
+                              ? 'La interpretación estratégica por pilar estará disponible una vez completado el diagnóstico organizacional.'
+                              : `El pilar ${pillar.name} refleja el nivel actual de madurez y capacidad operativa de la organización.`}
                           </p>
                         </div>
                       );
                     })}
                   </div>
-                </div>
-              </div>
-
-              <div className="mt-10 border border-amber-700/30 rounded-3xl p-8 bg-gradient-to-br from-amber-950/40 to-zinc-950">
-                <h3 className="text-3xl font-semibold text-amber-400 mb-6">
-                  Generación de Informe Ejecutivo
-                </h3>
-
-                <p className="text-zinc-300 text-xl leading-relaxed max-w-5xl mb-10">
-                  Una vez finalizado el diagnóstico operativo, el sistema podrá generar automáticamente un informe ejecutivo en PDF con resultados, radar de madurez, interpretación estratégica y recomendaciones ejecutivas. Posteriormente el informe será enviado al correo registrado.
-                </p>
-
-                <button
-                  className="bg-amber-500 hover:bg-amber-400 transition-all text-black font-bold text-lg px-10 py-5 rounded-2xl shadow-2xl"
-                >
-                  Finalizar Evaluación y Generar Informe
-                </button>
+                )}
               </div>
             </div>
-          </>
+
+            <div className="border border-zinc-800 rounded-3xl p-8 md:p-10 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black overflow-hidden">
+              <div className="flex justify-between items-start gap-6 mb-10">
+                <div>
+                  <h3 className="text-3xl font-bold text-white mb-3">
+                    Escalera Ejecutiva de Madurez
+                  </h3>
+
+                  <p className="text-zinc-400 text-lg max-w-3xl leading-relaxed">
+                    Visualización estratégica del nivel de madurez organizacional.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setOpenExecutiveSections(prev => ({ ...prev, escalera: !prev.escalera }))}
+                  className="flex items-center gap-3 text-amber-400 pt-1 shrink-0"
+                >
+                  <span className="text-sm uppercase tracking-wider">
+                    {openExecutiveSections.escalera ? 'Ocultar' : 'Ver más'}
+                  </span>
+                  <span className="text-3xl font-light">
+                    {openExecutiveSections.escalera ? '−' : '+'}
+                  </span>
+                </button>
+              </div>
+
+              {openExecutiveSections.escalera && (
+                <div className="space-y-10">
+                  <div className="bg-black/40 border border-violet-500/30 rounded-2xl px-6 py-5 max-w-[260px]">
+                    <p className="text-violet-400 uppercase tracking-widest text-sm mb-2 font-semibold">
+                      Puntaje Promedio
+                    </p>
+
+                    <div className="text-5xl font-black text-violet-400 mb-2">
+                      {overallScore ? overallScore.toFixed(1) : '0.0'}
+                    </div>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <div className="min-w-[950px] flex items-end gap-6 h-[420px] px-4 pt-10 pb-6 border-b border-zinc-800">
+                      {[
+                        { level: '1', title: 'Reactivo', color: 'from-red-950 to-red-800 border-red-500', active: overallScore <= 1.5, height: 'h-[90px]', description: 'Responde a problemas cuando ocurren.' },
+                        { level: '2', title: 'Inicial', color: 'from-orange-950 to-orange-800 border-orange-500', active: overallScore > 1.5 && overallScore <= 2.5, height: 'h-[150px]', description: 'Comienza a definir procesos básicos.' },
+                        { level: '3', title: 'Estructurado', color: 'from-yellow-950 to-yellow-800 border-yellow-500', active: overallScore > 2.5 && overallScore <= 3.5, height: 'h-[210px]', description: 'Procesos definidos y seguimiento operativo.' },
+                        { level: '4', title: 'Gestionado', color: 'from-green-950 to-green-800 border-green-500', active: overallScore > 3.5 && overallScore <= 4.5, height: 'h-[280px]', description: 'Operación controlada con KPIs y seguimiento.' },
+                        { level: '5', title: 'Optimizado', color: 'from-cyan-950 to-cyan-800 border-cyan-500', active: overallScore > 4.5, height: 'h-[340px]', description: 'Mejora continua e innovación sistemática.' }
+                      ].map((item, idx) => (
+                        <div key={idx} className="flex-1 flex flex-col items-center">
+                          <div className="text-zinc-500 text-sm mb-3 font-medium">
+                            Nivel {item.level}
+                          </div>
+
+                          <div className={`w-full rounded-t-3xl border bg-gradient-to-b ${item.color} ${item.height} relative overflow-hidden`}>
+                            {isAssessmentComplete && item.active && (
+                              <div className="absolute top-3 right-3 bg-white/10 border border-white/20 text-white text-[10px] tracking-[0.2em] uppercase px-3 py-1 rounded-full">
+                                Actual
+                              </div>
+                            )}
+
+                            <div className="absolute inset-0 p-5 flex flex-col justify-end">
+                              <div className="text-4xl font-black text-white/90 mb-2">
+                                {item.level}
+                              </div>
+
+                              <h4 className="text-xl font-bold text-white mb-3 leading-tight">
+                                {item.title}
+                              </h4>
+
+                              <p className="text-sm text-zinc-100 leading-relaxed">
+                                {item.description}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-14">
+              <div className="border border-violet-500/20 rounded-3xl p-8 bg-gradient-to-br from-violet-950/30 to-black/40">
+                <h4 className="text-2xl font-bold text-violet-400 mb-4">
+                  Próximo Paso Estratégico
+                </h4>
+
+                <p className="text-zinc-300 text-lg leading-relaxed">
+                  {!isAssessmentComplete
+                    ? 'Complete la evaluación para visualizar recomendaciones estratégicas y próximos pasos ejecutivos.'
+                    : 'La organización cuenta con información estratégica suficiente para priorizar iniciativas de evolución operativa.'}
+                </p>
+              </div>
+
+              <div className="border border-zinc-800 rounded-3xl p-8 bg-black/30">
+                <h4 className="text-2xl font-bold text-cyan-400 mb-6">
+                  Impacto Esperado
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-center">
+                  <div className="border border-zinc-800 rounded-2xl p-5">
+                    <p className="text-white font-semibold mb-2">Mayor eficiencia</p>
+                  </div>
+
+                  <div className="border border-zinc-800 rounded-2xl p-5">
+                    <p className="text-white font-semibold mb-2">Reducción de riesgos</p>
+                  </div>
+
+                  <div className="border border-zinc-800 rounded-2xl p-5">
+                    <p className="text-white font-semibold mb-2">Mejor dirección</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="border border-amber-700/30 rounded-3xl p-8 bg-gradient-to-br from-amber-950/40 to-zinc-950">
+              <h3 className="text-3xl font-semibold text-amber-400 mb-6">
+                Generación de Informe Ejecutivo
+              </h3>
+
+              <p className="text-zinc-300 text-lg leading-relaxed max-w-5xl mb-10">
+                Una vez finalizado el diagnóstico operativo, el sistema podrá generar automáticamente un informe ejecutivo en PDF.
+              </p>
+
+              <button className="bg-amber-500 hover:bg-amber-400 transition-all text-black font-bold text-lg px-10 py-5 rounded-2xl shadow-2xl">
+                Finalizar Evaluación y Generar Informe
+              </button>
+            </div>
+          </div>
         )}
 
         {activePage === 'Descriptores de Nivel' && (
           <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800 mb-10 overflow-x-auto">
             <div className="mb-8">
-              <h2 className="text-4xl font-semibold mb-3">
+              <h2 className="text-3xl font-semibold mb-3">
                 Descriptores de Nivel por Pilar
               </h2>
               <p className="text-zinc-400 text-lg">
