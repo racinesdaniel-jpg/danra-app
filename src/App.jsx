@@ -360,33 +360,74 @@ const responseGuides = {
                 </div>
               </div>
 
-              <p className="mt-8">
+              <p className="mt-8 text-xl font-semibold text-white">
                 Escala oficial de respuesta:
               </p>
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-6">
-                {options.map((option, index) => (
 
-                  <div
-                    key={option.value}
-                    className="border border-zinc-800 rounded-2xl p-4 bg-zinc-950"
-                  >
-                    <h3 className="text-2xl font-bold text-amber-400 mb-2">
-                      {option.label}
-                    </h3>
-                    <div>
-                      <p className="text-zinc-100 font-semibold mb-2">
-                        Nivel {option.label}
-                      </p>
-                      <p className="text-zinc-400 text-sm leading-relaxed">
-                        Evaluación referencial de madurez operativa.
-                      </p>
+              <div className="mt-6 overflow-x-auto rounded-3xl border border-zinc-800">
+                <div className="min-w-[1000px]">
+                  <div className="grid grid-cols-2 bg-zinc-950 border-b border-zinc-800">
+                    <div className="p-5 font-semibold text-white border-r border-zinc-800">
+                      Nivel
+                    </div>
+                    <div className="p-5 font-semibold text-white">
+                      Descriptor Ejecutivo
                     </div>
                   </div>
-                ))}
+
+                  {[
+                    {
+                      level: '1 — Reactivo',
+                      color: 'text-red-300 bg-red-950/40',
+                      description:
+                        'La empresa opera resolviendo urgencias. Sin estructura, sin procesos definidos y sin visibilidad operativa.'
+                    },
+                    {
+                      level: '2 — Inicial',
+                      color: 'text-orange-300 bg-orange-950/40',
+                      description:
+                        'Existen algunos elementos básicos, pero son informales, inconsistentes o dependen de personas específicas.'
+                    },
+                    {
+                      level: '3 — Estructurado',
+                      color: 'text-yellow-300 bg-yellow-900/30',
+                      description:
+                        'La empresa cuenta con procesos definidos y seguimiento básico, aunque todavía existen brechas relevantes.'
+                    },
+                    {
+                      level: '4 — Gestionado',
+                      color: 'text-green-300 bg-green-900/30',
+                      description:
+                        'La operación funciona con métricas, control operativo, información confiable y dirección estratégica activa.'
+                    },
+                    {
+                      level: '5 — Optimizado',
+                      color: 'text-emerald-300 bg-emerald-900/30',
+                      description:
+                        'Empresa de alto desempeño con mejora continua, datos en tiempo real y capacidad de escalar sosteniblemente.'
+                    }
+                  ].map((item, index) => (
+                    <div
+                      key={index}
+                      className="grid grid-cols-2 border-t border-zinc-800"
+                    >
+                      <div
+                        className={`p-6 text-2xl font-bold border-r border-zinc-800 ${item.color}`}
+                      >
+                        {item.level}
+                      </div>
+
+                      <div className="p-6 text-zinc-300 leading-relaxed bg-zinc-900">
+                        {item.description}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <p>
+
+              <p className="mt-8 text-zinc-300 leading-relaxed">
                 El resultado permitirá identificar riesgos operativos,
-                oportunidades estratégicas y capacidad de dirección operativa.
+                oportunidades estratégicas, brechas estructurales y capacidad de dirección operativa.
               </p>
             </div>
           </div>
