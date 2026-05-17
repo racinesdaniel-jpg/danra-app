@@ -781,9 +781,9 @@ const responseGuides = {
               )}
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
+            <div className="space-y-10">
 
-              <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800">
+              <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800 w-full">
                 <button
                   onClick={() => setOpenExecutiveSections(prev => ({ ...prev, perfil: !prev.perfil }))}
                   className="w-full flex justify-between items-center mb-6 text-left"
@@ -808,12 +808,12 @@ const responseGuides = {
                 </button>
 
                 {openExecutiveSections.perfil && (
-                  <div className="h-[720px] w-full">
+                  <div className="h-[860px] w-full">
   <ResponsiveContainer width="100%" height="100%">
     <RadarChart
       data={radarData}
-      outerRadius="52%"
-      margin={{ top: 50, right: 120, bottom: 50, left: 120 }}
+      outerRadius="60%"
+      margin={{ top: 120, right: 220, bottom: 120, left: 220 }}
     >
       <PolarGrid stroke="#52525B" />
 
@@ -832,8 +832,8 @@ const responseGuides = {
               x={x}
               y={y}
               textAnchor={textAnchor}
-              fill="#FFFFFF"
-              fontSize={11}
+              fill="#F4F4F5"
+              fontSize={15}
               fontWeight={600}
             >
               {lines.map((line, index) => (
@@ -929,7 +929,7 @@ const responseGuides = {
             <div className="border border-zinc-800 rounded-3xl p-8 md:p-10 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black overflow-hidden">
               <div className="flex justify-between items-start gap-6 mb-10">
                 <div>
-                  <h3 className="text-3xl font-bold text-white mb-3">
+                  <h3 className="text-2xl font-bold text-white mb-3">
                     Escalera Ejecutiva de Madurez
                   </h3>
 
