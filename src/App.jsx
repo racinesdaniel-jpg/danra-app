@@ -548,8 +548,8 @@ const responseGuides = {
               </div>
 
               <div>
-                <label className="block text-zinc-300 mb-3 text-sm uppercase tracking-wide">
-                  Cargo
+                <label className="block text-zinc-300 mb-3 text-sm uppercase tracking-wide whitespace-nowrap">
+                  CARGO
                 </label>
                 <input
                   type="text"
@@ -928,37 +928,37 @@ const responseGuides = {
                     </div>
                   </div>
 
-                  <div className="overflow-x-auto">
-                    <div className="min-w-[950px] flex items-end gap-6 h-[420px] px-4 pt-10 pb-6 border-b border-zinc-800">
+                  <div className="overflow-x-auto overflow-y-visible py-4">
+                    <div className="min-w-[1050px] flex items-end gap-5 h-[420px] px-6 pt-10 pb-8 border-b border-zinc-800">
                       {[
-                        { level: '1', title: 'Reactivo', color: 'from-red-950 to-red-800 border-red-500', active: overallScore <= 1.5, height: 'h-[90px]', description: 'Responde a problemas cuando ocurren.' },
-                        { level: '2', title: 'Inicial', color: 'from-orange-950 to-orange-800 border-orange-500', active: overallScore > 1.5 && overallScore <= 2.5, height: 'h-[150px]', description: 'Comienza a definir procesos básicos.' },
-                        { level: '3', title: 'Estructurado', color: 'from-yellow-950 to-yellow-800 border-yellow-500', active: overallScore > 2.5 && overallScore <= 3.5, height: 'h-[210px]', description: 'Procesos definidos y seguimiento operativo.' },
-                        { level: '4', title: 'Gestionado', color: 'from-green-950 to-green-800 border-green-500', active: overallScore > 3.5 && overallScore <= 4.5, height: 'h-[280px]', description: 'Operación controlada con KPIs y seguimiento.' },
+                        { level: '1', title: 'Reactivo', color: 'from-red-950 to-red-800 border-red-500', active: overallScore <= 1.5, height: 'h-[140px]', description: 'Responde a problemas cuando ocurren.' },
+                        { level: '2', title: 'Inicial', color: 'from-orange-950 to-orange-800 border-orange-500', active: overallScore > 1.5 && overallScore <= 2.5, height: 'h-[170px]', description: 'Comienza a definir procesos básicos.' },
+                        { level: '3', title: 'Estructurado', color: 'from-yellow-950 to-yellow-800 border-yellow-500', active: overallScore > 2.5 && overallScore <= 3.5, height: 'h-[230px]', description: 'Procesos definidos y seguimiento operativo.' },
+                        { level: '4', title: 'Gestionado', color: 'from-green-950 to-green-800 border-green-500', active: overallScore > 3.5 && overallScore <= 4.5, height: 'h-[290px]', description: 'Operación controlada con KPIs y seguimiento.' },
                         { level: '5', title: 'Optimizado', color: 'from-cyan-950 to-cyan-800 border-cyan-500', active: overallScore > 4.5, height: 'h-[340px]', description: 'Mejora continua e innovación sistemática.' }
                       ].map((item, idx) => (
                         <div key={idx} className="flex-1 flex flex-col items-center">
-                          <div className="text-zinc-500 text-sm mb-3 font-medium">
+                          <div className="text-zinc-300 text-base mb-4 font-semibold tracking-wide">
                             Nivel {item.level}
                           </div>
 
-                          <div className={`w-full rounded-t-3xl border bg-gradient-to-b ${item.color} ${item.height} relative overflow-hidden`}>
+                          <div className={`w-full rounded-t-3xl border bg-gradient-to-b ${item.color} ${item.height} relative overflow-visible`}>
                             {isAssessmentComplete && item.active && (
                               <div className="absolute top-3 right-3 bg-white/10 border border-white/20 text-white text-[10px] tracking-[0.2em] uppercase px-3 py-1 rounded-full">
                                 Actual
                               </div>
                             )}
 
-                            <div className="absolute inset-0 p-5 flex flex-col justify-end">
-                              <div className="text-4xl font-black text-white/90 mb-2">
+                            <div className="absolute inset-0 px-5 pb-5 pt-5 flex flex-col justify-between">
+                              <div className="text-2xl font-black text-white/95 mb-2 leading-none">
                                 {item.level}
                               </div>
 
-                              <h4 className="text-xl font-bold text-white mb-3 leading-tight">
+                              <h4 className="text-base font-bold text-white mb-2 leading-tight">
                                 {item.title}
                               </h4>
 
-                              <p className="text-sm text-zinc-100 leading-relaxed">
+                              <p className="text-xs text-zinc-100 leading-relaxed">
                                 {item.description}
                               </p>
                             </div>
