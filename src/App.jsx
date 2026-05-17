@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import {
   Radar,
   RadarChart,
@@ -321,10 +323,85 @@ const responseGuides = {
     escalera: false
   });
 
+  const pdfRef = useRef();
+
   const radarData = pillars.map((pillar) => ({
     pillar: pillar.name,
     score: Number(calculatePillarScore(pillar).toFixed(1))
   }));
+
+  const getExecutiveInterpretation = (score) => {
+    if (score <= 1.5) {
+      return 'La organización opera de manera reactiva, con alta dependencia operativa y ausencia de estructura consolidada.';
+    }
+
+    if (score <= 2.5) {
+      return 'La organización ha comenzado a desarrollar capacidades operativas básicas, aunque aún existen dependencias críticas y oportunidades importantes de estructuración.';
+    }
+
+    if (score <= 3.5) {
+      return 'La organización cuenta con procesos definidos y capacidades operativas funcionales.';
+    }
+
+    if (score <= 4.5) {
+      return 'La organización demuestra un nivel sólido de gestión operativa, con visibilidad y control estructurado.';
+    }
+
+    return 'La organización opera bajo un modelo avanzado de excelencia operacional y mejora continua.';
+  };
+
+  const getPillarInterpretation = (pillarName, score) => {
+    if (score <= 1.5) {
+      return `El pilar ${pillarName} presenta brechas críticas de control y estabilidad operativa.`;
+    }
+
+    if (score <= 2.5) {
+      return `El pilar ${pillarName} evidencia capacidades iniciales con oportunidades importantes de evolución.`;
+    }
+
+    if (score <= 3.5) {
+      return `El pilar ${pillarName} cuenta con bases operativas funcionales y procesos parcialmente estructurados.`;
+    }
+
+    if (score <= 4.5) {
+      return `El pilar ${pillarName} refleja una gestión sólida con capacidad de seguimiento y control.`;
+    }
+
+    return `El pilar ${pillarName} opera bajo estándares avanzados de excelencia operacional.`;
+  };
+
+  const currentMaturityLevel = getMaturity(overallScore || 0);
+
+  const generateExecutivePDF = async () => {
+    const input = pdfRef.current;
+
+    if (!input) return;
+
+    const canvas = await html2canvas(input, {
+      scale: 2,
+      backgroundColor: '#0B0B0B'
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+
+    const pdf = new jsPDF('p', 'mm', 'a4');
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+
+    const pdfHeight =
+      (canvas.height * pdfWidth) / canvas.width;
+
+    pdf.addImage(
+      imgData,
+      'PNG',
+      0,
+      0,
+      pdfWidth,
+      pdfHeight
+    );
+
+    pdf.save('DANRA-Executive-Report.pdf');
+  };
 
   return (
     <div className="min-h-screen bg-[#0B0B0B] text-white p-8">
@@ -736,7 +813,7 @@ const responseGuides = {
         )}
 
         {activePage === 'Resumen Ejecutivo' && (
-          <div className="space-y-10">
+          <div ref={pdfRef} className="space-y-10">
 
             <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800">
               <button
@@ -774,7 +851,7 @@ const responseGuides = {
                     <p className="text-zinc-300 text-lg leading-relaxed">
                       {!isAssessmentComplete
                         ? 'La interpretación ejecutiva estará disponible una vez completado el diagnóstico organizacional.'
-                        : 'DANRA ha identificado el nivel actual de madurez operativa y las oportunidades estratégicas prioritarias de evolución organizacional.'}
+                        : '{getExecutiveInterpretation(overallScore)}'}
                     </p>
                   </div>
                 </div>
@@ -916,7 +993,7 @@ const responseGuides = {
                           <p className="text-zinc-300 leading-relaxed">
                             {!isAssessmentComplete
                               ? 'La interpretación estratégica por pilar estará disponible una vez completado el diagnóstico organizacional.'
-                              : `El pilar ${pillar.name} refleja el nivel actual de madurez y capacidad operativa de la organización.`}
+                              : getPillarInterpretation(pillar.name, score)}
                           </p>
                         </div>
                       );
@@ -961,6 +1038,10 @@ const responseGuides = {
                     <div className="text-5xl font-black text-violet-400 mb-2">
                       {overallScore ? overallScore.toFixed(1) : '0.0'}
                     </div>
+
+                    <p className="text-zinc-300 text-lg font-semibold">
+                      {currentMaturityLevel}
+                    </p>
                   </div>
 
                   <div className="overflow-x-auto overflow-y-visible py-4">
@@ -1049,7 +1130,10 @@ const responseGuides = {
                 Una vez finalizado el diagnóstico operativo, el sistema podrá generar automáticamente un informe ejecutivo en PDF.
               </p>
 
-              <button className="bg-amber-500 hover:bg-amber-400 transition-all text-black font-bold text-lg px-10 py-5 rounded-2xl shadow-2xl">
+              <button
+                onClick={generateExecutivePDF}
+                className="bg-amber-500 hover:bg-amber-400 transition-all text-black font-bold text-lg px-10 py-5 rounded-2xl shadow-2xl"
+              >
                 Finalizar Evaluación y Generar Informe
               </button>
             </div>
