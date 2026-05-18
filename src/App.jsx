@@ -458,6 +458,8 @@ const responseGuides = {
         );
       });
 
+      let currentY = 10;
+
       for (let i = 0; i < sections.length; i++) {
         const section = sections[i];
 
@@ -479,31 +481,21 @@ const responseGuides = {
         const imgWidth = pageWidth - margin * 2;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-        pdf.addPage();
-
-        const pageContentHeight = pageHeight;
-        const safeBottomMargin = 8;
-
-        let remainingHeight = imgHeight;
-        let position = 0;
-
-        while (remainingHeight > safeBottomMargin) {
-          pdf.addImage(
-            imgData,
-            'PNG',
-            margin,
-            0 - position,
-            imgWidth,
-            imgHeight
-          );
-
-          remainingHeight -= (pageContentHeight - safeBottomMargin);
-          position += (pageContentHeight - safeBottomMargin);
-
-          if (remainingHeight > 0) {
-            pdf.addPage();
-          }
+        if (currentY + imgHeight > pageHeight - 10) {
+          pdf.addPage();
+          currentY = 10;
         }
+
+        pdf.addImage(
+          imgData,
+          'PNG',
+          margin,
+          currentY,
+          imgWidth,
+          imgHeight
+        );
+
+        currentY += imgHeight + 6;
       }
 
       const totalPages = pdf.internal.getNumberOfPages();
@@ -1129,7 +1121,7 @@ const responseGuides = {
               )}
             </div>
 
-            <div className="space-y-0">
+            <div className="pdf-section space-y-0">
 
               <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800 w-full">
                 <button
@@ -1156,8 +1148,8 @@ const responseGuides = {
                 </button>
 
                 {openExecutiveSections.perfil && (
-                  <div className="h-[950px] w-full">
-  <ResponsiveContainer width="100%" height="100%">
+                  <div className="w-full py-6">
+  <ResponsiveContainer width="100%" height={520}>
     <RadarChart
       data={radarData}
       outerRadius="72%"
@@ -1315,8 +1307,8 @@ const responseGuides = {
                     </p>
                   </div>
 
-                  <div className="overflow-x-auto overflow-y-visible py-4">
-                    <div className="min-w-[1050px] flex items-end gap-5 h-[420px] px-6 pt-10 pb-8 border-b border-zinc-800">
+                  <div className="overflow-x-auto py-2">
+                    <div className="min-w-[1050px] flex items-end gap-5 h-[320px] px-6 pt-10 pb-8 border-b border-zinc-800">
                       {[
                         { level: '1', title: 'Reactivo', color: 'from-red-950 to-red-800 border-red-500', active: overallScore <= 1.5, height: 'h-[140px]', description: 'Responde a problemas cuando ocurren.' },
                         { level: '2', title: 'Inicial', color: 'from-orange-950 to-orange-800 border-orange-500', active: overallScore > 1.5 && overallScore <= 2.5, height: 'h-[170px]', description: 'Comienza a definir procesos básicos.' },
