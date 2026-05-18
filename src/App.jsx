@@ -419,7 +419,7 @@ const responseGuides = {
       pdf.setTextColor(255, 255, 255);
 
       pdf.text(
-        organizationData.empresa?.trim()
+        organizationData.empresa && organizationData.empresa.trim() !== ''
           ? organizationData.empresa
           : 'Organización Evaluada',
         pageWidth / 2,
@@ -427,16 +427,19 @@ const responseGuides = {
         { align: 'center' }
       );
 
-      const sections = document.querySelectorAll('.pdf-section');
+      const sections = Array.from(document.querySelectorAll('.pdf-section')).filter(
+        (section) => {
+          const text = section.innerText || '';
+
+          return (
+            !text.includes('Generación de Informe Ejecutivo') &&
+            !text.includes('Finalizar Evaluación y Generar Informe')
+          );
+        }
+      );
 
       for (let i = 0; i < sections.length; i++) {
         const section = sections[i];
-
-        if (
-          section.innerText.includes('Generación de Informe Ejecutivo')
-        ) {
-          continue;
-        }
 
         const canvas = await html2canvas(section, {
           scale: 2,
@@ -450,56 +453,20 @@ const responseGuides = {
         const imgData = canvas.toDataURL('image/png');
 
         const margin = 10;
-
         const imgWidth = pageWidth - margin * 2;
-
         const imgHeight =
           (canvas.height * imgWidth) / canvas.width;
 
         pdf.addPage();
 
-        if (imgHeight <= 277) {
-          pdf.addImage(
-            imgData,
-            'PNG',
-            margin,
-            10,
-            imgWidth,
-            imgHeight
-          );
-        } else {
-          let heightLeft = imgHeight;
-
-          let position = 10;
-
-          pdf.addImage(
-            imgData,
-            'PNG',
-            margin,
-            position,
-            imgWidth,
-            imgHeight
-          );
-
-          heightLeft -= 277;
-
-          while (heightLeft > 0) {
-            position = heightLeft - imgHeight + 10;
-
-            pdf.addPage();
-
-            pdf.addImage(
-              imgData,
-              'PNG',
-              margin,
-              position,
-              imgWidth,
-              imgHeight
-            );
-
-            heightLeft -= 277;
-          }
-        }
+        pdf.addImage(
+          imgData,
+          'PNG',
+          margin,
+          10,
+          imgWidth,
+          imgHeight
+        );
       }
 
       const totalPages = pdf.internal.getNumberOfPages();
@@ -1120,7 +1087,7 @@ const responseGuides = {
               )}
             </div>
 
-            <div className="space-y-10">
+            <div className="space-y-0">
 
               <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800 w-full">
                 <button
