@@ -393,13 +393,58 @@ const responseGuides = {
       const pdfWidth = 210;
       const pageHeight = 297;
 
+      // =========================
+      // PORTADA EJECUTIVA
+      // =========================
+
+      pdf.setFillColor(11, 11, 11);
+      pdf.rect(0, 0, 210, 297, 'F');
+
+      pdf.setTextColor(255, 255, 255);
+
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(30);
+
+      pdf.text(
+        'RESUMEN EJECUTIVO',
+        105,
+        110,
+        { align: 'center' }
+      );
+
+      pdf.setFontSize(16);
+
+      pdf.setTextColor(180, 180, 180);
+
+      pdf.text(
+        'Informe de Madurez Operativa',
+        105,
+        125,
+        { align: 'center' }
+      );
+
+      pdf.setFontSize(12);
+
+      pdf.text(
+        organizationData.empresa || 'Organización Evaluada',
+        105,
+        140,
+        { align: 'center' }
+      );
+
+      pdf.addPage();
+
+      // =========================
+      // CONTENIDO
+      // =========================
+
       const imgWidth = pdfWidth;
 
       const imgHeight =
         (canvas.height * imgWidth) / canvas.width;
 
-      let heightLeft = imgHeight;
       let position = 0;
+      let heightLeft = imgHeight;
 
       pdf.addImage(
         imgData,
@@ -412,7 +457,7 @@ const responseGuides = {
 
       heightLeft -= pageHeight;
 
-      while (heightLeft > 0) {
+      while (heightLeft > 5) {
         position = heightLeft - imgHeight;
 
         pdf.addPage();
