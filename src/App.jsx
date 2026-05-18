@@ -444,8 +444,8 @@ const responseGuides = {
       for (let i = 0; i < sections.length; i++) {
         const section = sections[i];
 
-        section.style.marginBottom = '0px';
-        section.style.paddingBottom = '0px';
+        section.style.margin = '0';
+        section.style.paddingBottom = '0';
 
         const canvas = await html2canvas(section, {
           scale: 2,
@@ -458,46 +458,47 @@ const responseGuides = {
 
         const imgData = canvas.toDataURL('image/png');
 
-        const margin = 8;
+        const margin = 5;
         const imgWidth = pageWidth - margin * 2;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
         pdf.addPage();
 
-        const availableHeight = pageHeight - 20;
+        const pageContentHeight = pageHeight - 10;
 
-        if (imgHeight <= availableHeight) {
+        let remainingHeight = imgHeight;
+        let position = 0;
+
+        while (remainingHeight > 0) {
           pdf.addImage(
             imgData,
             'PNG',
             margin,
-            10,
+            5 - position,
             imgWidth,
             imgHeight
           );
-        } else {
-          const ratio = availableHeight / imgHeight;
 
-          pdf.addImage(
-            imgData,
-            'PNG',
-            margin,
-            10,
-            imgWidth * ratio,
-            imgHeight * ratio
-          );
+          remainingHeight -= pageContentHeight;
+          position += pageContentHeight;
+
+          if (remainingHeight > 0) {
+            pdf.addPage();
+          }
         }
       }
 
       const totalPages = pdf.internal.getNumberOfPages();
 
-      const lastPage = pdf.internal.pages[totalPages];
+      for (let page = totalPages; page >= 1; page--) {
+        const currentPage = pdf.internal.pages[page];
 
-      if (
-        lastPage &&
-        lastPage.length <= 3
-      ) {
-        pdf.deletePage(totalPages);
+        if (
+          currentPage &&
+          currentPage.length <= 3
+        ) {
+          pdf.deletePage(page);
+        }
       }
 
       const companyName =
