@@ -375,30 +375,17 @@ const responseGuides = {
 
   const generateExecutivePDF = async () => {
     try {
-      const input = pdfRef.current;
-
-      if (!input) return;
-
-      const canvas = await html2canvas(input, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#0B0B0B',
-        scrollY: -window.scrollY
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-
       const pdf = new jsPDF('p', 'mm', 'a4');
 
-      const pdfWidth = 210;
+      const pageWidth = 210;
       const pageHeight = 297;
 
       // =========================
-      // PORTADA EJECUTIVA
+      // PORTADA
       // =========================
 
       pdf.setFillColor(11, 11, 11);
-      pdf.rect(0, 0, 210, 297, 'F');
+      pdf.rect(0, 0, pageWidth, pageHeight, 'F');
 
       pdf.setTextColor(255, 255, 255);
 
@@ -407,78 +394,110 @@ const responseGuides = {
 
       pdf.text(
         'RESUMEN EJECUTIVO',
-        105,
+        pageWidth / 2,
         110,
         { align: 'center' }
       );
 
       pdf.setFontSize(16);
-
       pdf.setTextColor(180, 180, 180);
 
       pdf.text(
         'Informe de Madurez Operativa',
-        105,
-        125,
+        pageWidth / 2,
+        126,
         { align: 'center' }
       );
 
-      pdf.setFontSize(12);
+      pdf.setFontSize(14);
 
       pdf.text(
-        organizationData.empresa || 'Organización Evaluada',
-        105,
-        140,
+        organizationData.empresa?.trim()
+          ? organizationData.empresa
+          : 'Organización Evaluada',
+        pageWidth / 2,
+        142,
         { align: 'center' }
       );
 
-      pdf.addPage();
-
       // =========================
-      // CONTENIDO
+      // SECCIONES PDF
       // =========================
 
-      const imgWidth = pdfWidth;
+      const sections = document.querySelectorAll('.pdf-section');
 
-      const imgHeight =
-        (canvas.height * imgWidth) / canvas.width;
+      for (let i = 0; i < sections.length; i++) {
+        const section = sections[i];
 
-      let position = 0;
-      let heightLeft = imgHeight;
+        const canvas = await html2canvas(section, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#0B0B0B',
+          scrollY: -window.scrollY
+        });
 
-      pdf.addImage(
-        imgData,
-        'PNG',
-        0,
-        position,
-        imgWidth,
-        imgHeight
-      );
+        const imgData = canvas.toDataURL('image/png');
 
-      heightLeft -= pageHeight;
+        const imgWidth = 210;
 
-      while (heightLeft > 5) {
-        position = heightLeft - imgHeight;
+        const imgHeight =
+          (canvas.height * imgWidth) / canvas.width;
 
         pdf.addPage();
 
-        pdf.addImage(
-          imgData,
-          'PNG',
-          0,
-          position,
-          imgWidth,
-          imgHeight
-        );
+        // Si la sección es demasiado alta
+        if (imgHeight > pageHeight) {
+          let heightLeft = imgHeight;
+          let position = 0;
 
-        heightLeft -= pageHeight;
+          pdf.addImage(
+            imgData,
+            'PNG',
+            0,
+            position,
+            imgWidth,
+            imgHeight
+          );
+
+          heightLeft -= pageHeight;
+
+          while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
+
+            pdf.addPage();
+
+            pdf.addImage(
+              imgData,
+              'PNG',
+              0,
+              position,
+              imgWidth,
+              imgHeight
+            );
+
+            heightLeft -= pageHeight;
+          }
+        } else {
+          pdf.addImage(
+            imgData,
+            'PNG',
+            0,
+            0,
+            imgWidth,
+            imgHeight
+          );
+        }
       }
 
+      const companyName =
+        organizationData.empresa?.trim() || 'Organizacion';
+
       pdf.save(
-        `DANRA-${organizationData.empresa || 'Executive'}-Report.pdf`
+        `${companyName}-Resumen-Ejecutivo-DANRA.pdf`
       );
 
-      alert('Informe ejecutivo DANRA generado correctamente.');
+      alert('Informe ejecutivo generado correctamente.');
+
     } catch (error) {
       console.error(error);
       alert('Ocurrió un error generando el informe PDF.');
@@ -897,7 +916,7 @@ const responseGuides = {
         {activePage === 'Resumen Ejecutivo' && (
           <div ref={pdfRef} className="space-y-10">
 
-            <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800">
+            <div className="pdf-section bg-zinc-900 rounded-3xl p-10 border border-zinc-800">
               <button
                 onClick={() => setOpenExecutiveSections(prev => ({ ...prev, organizacion: !prev.organizacion }))}
                 className="w-full flex justify-between items-center mb-8 text-left"
@@ -1032,7 +1051,7 @@ const responseGuides = {
           )}
         </div>
 
-            <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800">
+            <div className="pdf-section bg-zinc-900 rounded-3xl p-10 border border-zinc-800">
               <button
                 onClick={() => setOpenExecutiveSections(prev => ({ ...prev, resumen: !prev.resumen }))}
                 className="w-full flex justify-between items-center mb-6 text-left"
@@ -1220,7 +1239,7 @@ const responseGuides = {
               </div>
             </div>
 
-            <div className="border border-zinc-800 rounded-3xl p-8 md:p-10 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black overflow-hidden">
+            <div className="pdf-section border border-zinc-800 rounded-3xl p-8 md:p-10 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black overflow-hidden">
               <div className="flex justify-between items-start gap-6 mb-10">
                 <div>
                   <h3 className="text-2xl font-semibold text-white mb-3">
@@ -1304,7 +1323,7 @@ const responseGuides = {
               )}
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-14">
+            <div className="pdf-section grid grid-cols-1 xl:grid-cols-2 gap-6 mb-14">
               <div className="border border-violet-500/20 rounded-3xl p-8 bg-gradient-to-br from-violet-950/30 to-black/40">
                 <h4 className="text-2xl font-semibold text-violet-400 mb-4">
                   Próximo Paso Estratégico
@@ -1338,7 +1357,7 @@ const responseGuides = {
               </div>
             </div>
 
-            <div className="border border-amber-700/30 rounded-3xl p-8 bg-gradient-to-br from-amber-950/40 to-zinc-950">
+            <div className="pdf-section border border-amber-700/30 rounded-3xl p-8 bg-gradient-to-br from-amber-950/40 to-zinc-950">
               <h3 className="text-2xl font-semibold text-amber-400 mb-6">
                 Generación de Informe Ejecutivo
               </h3>
