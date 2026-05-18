@@ -418,28 +418,34 @@ const responseGuides = {
       pdf.setFontSize(18);
       pdf.setTextColor(255, 255, 255);
 
-      pdf.text(
+      const organizationName =
         organizationData.empresa && organizationData.empresa.trim() !== ''
           ? organizationData.empresa
-          : 'Organización Evaluada',
+          : 'DANRA';
+
+      pdf.text(
+        organizationName,
         pageWidth / 2,
         142,
         { align: 'center' }
       );
 
-      const sections = Array.from(document.querySelectorAll('.pdf-section')).filter(
-        (section) => {
-          const text = section.innerText || '';
+      const sections = Array.from(
+        document.querySelectorAll('.pdf-section')
+      ).filter((section) => {
+        const text = section.innerText || '';
 
-          return (
-            !text.includes('Generación de Informe Ejecutivo') &&
-            !text.includes('Finalizar Evaluación y Generar Informe')
-          );
-        }
-      );
+        return (
+          !text.includes('Generación de Informe Ejecutivo') &&
+          !text.includes('Finalizar Evaluación y Generar Informe')
+        );
+      });
 
       for (let i = 0; i < sections.length; i++) {
         const section = sections[i];
+
+        section.style.marginBottom = '0px';
+        section.style.paddingBottom = '0px';
 
         const canvas = await html2canvas(section, {
           scale: 2,
@@ -452,21 +458,35 @@ const responseGuides = {
 
         const imgData = canvas.toDataURL('image/png');
 
-        const margin = 10;
+        const margin = 8;
         const imgWidth = pageWidth - margin * 2;
-        const imgHeight =
-          (canvas.height * imgWidth) / canvas.width;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
         pdf.addPage();
 
-        pdf.addImage(
-          imgData,
-          'PNG',
-          margin,
-          10,
-          imgWidth,
-          imgHeight
-        );
+        const availableHeight = pageHeight - 20;
+
+        if (imgHeight <= availableHeight) {
+          pdf.addImage(
+            imgData,
+            'PNG',
+            margin,
+            10,
+            imgWidth,
+            imgHeight
+          );
+        } else {
+          const ratio = availableHeight / imgHeight;
+
+          pdf.addImage(
+            imgData,
+            'PNG',
+            margin,
+            10,
+            imgWidth * ratio,
+            imgHeight * ratio
+          );
+        }
       }
 
       const totalPages = pdf.internal.getNumberOfPages();
@@ -482,8 +502,8 @@ const responseGuides = {
 
       const companyName =
         organizationData.empresa?.trim()
-          ? organizationData.empresa
-          : 'Organizacion';
+          ? organizationData.empresa.trim()
+          : 'DANRA';
 
       pdf.save(
         `${companyName}-Resumen-Ejecutivo-DANRA.pdf`
@@ -1232,7 +1252,7 @@ const responseGuides = {
               </div>
             </div>
 
-            <div className="pdf-section border border-zinc-800 rounded-3xl p-8 md:p-10 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black overflow-hidden">
+            <div className="pdf-section border border-zinc-800 rounded-3xl p-8 md:p-10 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black overflow-hidden mt-2 mb-2">
               <div className="flex justify-between items-start gap-6 mb-10">
                 <div>
                   <h3 className="text-2xl font-semibold text-white mb-3">
@@ -1316,7 +1336,7 @@ const responseGuides = {
               )}
             </div>
 
-            <div className="pdf-section grid grid-cols-1 xl:grid-cols-2 gap-6 mb-14">
+            <div className="pdf-section grid grid-cols-1 xl:grid-cols-2 gap-6 mt-2 mb-2">
               <div className="border border-violet-500/20 rounded-3xl p-8 bg-gradient-to-br from-violet-950/30 to-black/40">
                 <h4 className="text-2xl font-semibold text-violet-400 mb-4">
                   Próximo Paso Estratégico
