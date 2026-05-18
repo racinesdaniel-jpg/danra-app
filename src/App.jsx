@@ -317,10 +317,10 @@ const responseGuides = {
   const [activePage, setActivePage] = useState('Instrucciones');
   const [openPillar, setOpenPillar] = useState(null);
   const [openExecutiveSections, setOpenExecutiveSections] = useState({
-    resumen: false,
-    perfil: false,
-    interpretacion: false,
-    escalera: false
+    resumen: true,
+    perfil: true,
+    interpretacion: true,
+    escalera: true
   });
 
   const pdfRef = useRef();
@@ -373,34 +373,70 @@ const responseGuides = {
   const currentMaturityLevel = getMaturity(overallScore || 0);
 
   const generateExecutivePDF = async () => {
-    const input = pdfRef.current;
+    try {
+      const input = pdfRef.current;
 
-    if (!input) return;
+      if (!input) return;
 
-    const canvas = await html2canvas(input, {
-      scale: 2,
-      backgroundColor: '#0B0B0B'
-    });
+      const canvas = await html2canvas(input, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#0B0B0B',
+        scrollY: -window.scrollY
+      });
 
-    const imgData = canvas.toDataURL('image/png');
+      const imgData = canvas.toDataURL('image/png');
 
-    const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdf = new jsPDF('p', 'mm', 'a4');
 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfWidth = 210;
+      const pageHeight = 297;
 
-    const pdfHeight =
-      (canvas.height * pdfWidth) / canvas.width;
+      const imgWidth = pdfWidth;
 
-    pdf.addImage(
-      imgData,
-      'PNG',
-      0,
-      0,
-      pdfWidth,
-      pdfHeight
-    );
+      const imgHeight =
+        (canvas.height * imgWidth) / canvas.width;
 
-    pdf.save('DANRA-Executive-Report.pdf');
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(
+        imgData,
+        'PNG',
+        0,
+        position,
+        imgWidth,
+        imgHeight
+      );
+
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+
+        pdf.addPage();
+
+        pdf.addImage(
+          imgData,
+          'PNG',
+          0,
+          position,
+          imgWidth,
+          imgHeight
+        );
+
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save(
+        `DANRA-${organizationData.empresa || 'Executive'}-Report.pdf`
+      );
+
+      alert('Informe ejecutivo DANRA generado correctamente.');
+    } catch (error) {
+      console.error(error);
+      alert('Ocurrió un error generando el informe PDF.');
+    }
   };
 
   return (
@@ -816,6 +852,93 @@ const responseGuides = {
           <div ref={pdfRef} className="space-y-10">
 
             <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800">
+              <div className="flex flex-col lg:flex-row justify-between items-start gap-8 mb-10">
+                <div>
+                  <h1 className="text-5xl font-light tracking-wide mb-3 text-white">
+                    DANRA
+                  </h1>
+
+                  <p className="text-xl text-zinc-400">
+                    Informe Ejecutivo de Madurez Operativa
+                  </p>
+                </div>
+
+                <div className="text-left lg:text-right">
+                  <p className="text-white text-xl font-semibold mb-1">
+                    Daniel Racines
+                  </p>
+
+                  <p className="text-zinc-500 leading-relaxed max-w-md">
+                    Asesor en Gobierno Operativo y Estrategia de Negocio
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <div className="border border-zinc-800 rounded-2xl p-5 bg-black/30">
+                  <p className="text-zinc-500 text-sm mb-2 uppercase tracking-wide">
+                    Empresa
+                  </p>
+
+                  <p className="text-white text-xl font-semibold">
+                    {organizationData.empresa || '-'}
+                  </p>
+                </div>
+
+                <div className="border border-zinc-800 rounded-2xl p-5 bg-black/30">
+                  <p className="text-zinc-500 text-sm mb-2 uppercase tracking-wide">
+                    Giro del Negocio
+                  </p>
+
+                  <p className="text-white text-xl font-semibold">
+                    {organizationData.giro || '-'}
+                  </p>
+                </div>
+
+                <div className="border border-zinc-800 rounded-2xl p-5 bg-black/30">
+                  <p className="text-zinc-500 text-sm mb-2 uppercase tracking-wide">
+                    Contacto
+                  </p>
+
+                  <p className="text-white text-xl font-semibold">
+                    {organizationData.contacto || '-'}
+                  </p>
+                </div>
+
+                <div className="border border-zinc-800 rounded-2xl p-5 bg-black/30">
+                  <p className="text-zinc-500 text-sm mb-2 uppercase tracking-wide">
+                    Cargo
+                  </p>
+
+                  <p className="text-white text-xl font-semibold">
+                    {organizationData.cargo || '-'}
+                  </p>
+                </div>
+
+                <div className="border border-zinc-800 rounded-2xl p-5 bg-black/30">
+                  <p className="text-zinc-500 text-sm mb-2 uppercase tracking-wide">
+                    Correo Electrónico
+                  </p>
+
+                  <p className="text-white text-xl font-semibold break-all">
+                    {organizationData.correo || '-'}
+                  </p>
+                </div>
+
+                <div className="border border-zinc-800 rounded-2xl p-5 bg-black/30">
+                  <p className="text-zinc-500 text-sm mb-2 uppercase tracking-wide">
+                    Fecha de Evaluación
+                  </p>
+
+                  <p className="text-white text-xl font-semibold">
+                    {organizationData.fecha || '-'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800">
               <button
                 onClick={() => setOpenExecutiveSections(prev => ({ ...prev, resumen: !prev.resumen }))}
                 className="w-full flex justify-between items-center mb-6 text-left"
@@ -851,7 +974,7 @@ const responseGuides = {
                     <p className="text-zinc-300 text-lg leading-relaxed">
                       {!isAssessmentComplete
                         ? 'La interpretación ejecutiva estará disponible una vez completado el diagnóstico organizacional.'
-                        : '{getExecutiveInterpretation(overallScore)}'}
+                        : getExecutiveInterpretation(overallScore)}
                     </p>
                   </div>
                 </div>
