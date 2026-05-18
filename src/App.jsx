@@ -458,7 +458,12 @@ const responseGuides = {
         );
       });
 
-      let currentY = 10;
+      pdf.addPage();
+
+      pdf.setFillColor(5, 5, 5);
+      pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+
+      let currentY = 12;
 
       for (let i = 0; i < sections.length; i++) {
         const section = sections[i];
@@ -477,13 +482,17 @@ const responseGuides = {
 
         const imgData = canvas.toDataURL('image/png');
 
-        const margin = 5;
+        const margin = 8;
         const imgWidth = pageWidth - margin * 2;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-        if (currentY + imgHeight > pageHeight - 10) {
+        if (currentY + imgHeight > pageHeight - 15) {
           pdf.addPage();
-          currentY = 10;
+
+          pdf.setFillColor(5, 5, 5);
+          pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+
+          currentY = 12;
         }
 
         pdf.addImage(
@@ -495,7 +504,7 @@ const responseGuides = {
           imgHeight
         );
 
-        currentY += imgHeight + 6;
+        currentY += imgHeight + 4;
       }
 
       const totalPages = pdf.internal.getNumberOfPages();
