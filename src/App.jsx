@@ -317,6 +317,7 @@ const responseGuides = {
   const [activePage, setActivePage] = useState('Instrucciones');
   const [openPillar, setOpenPillar] = useState(null);
   const [openExecutiveSections, setOpenExecutiveSections] = useState({
+    organizacion: true,
     resumen: true,
     perfil: true,
     interpretacion: true,
@@ -459,7 +460,7 @@ const responseGuides = {
         </div>
 
         <div className="mb-12">
-          <h1 className="text-5xl font-light tracking-wide mb-4">
+          <h1 className="text-4xl font-light tracking-wide mb-4">
             DANRA
           </h1>
           <p className="text-xl text-zinc-400">
@@ -469,7 +470,7 @@ const responseGuides = {
 
         {activePage === 'Instrucciones' && (
           <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800 mb-10">
-            <h2 className="text-3xl font-semibold mb-6">Instrucciones</h2>
+            <h2 className="text-2xl font-semibold mb-6">Instrucciones</h2>
             <div className="space-y-4 text-zinc-300 leading-relaxed">
               <p>
                 Esta herramienta permite evaluar el nivel de madurez operativa
@@ -610,7 +611,7 @@ const responseGuides = {
         {activePage === 'Datos de la Organización' && (
           <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800 mb-10">
             <div className="mb-10">
-              <h2 className="text-3xl font-semibold mb-3">
+              <h2 className="text-2xl font-semibold mb-3">
                 Datos de la Organización
               </h2>
 
@@ -852,23 +853,49 @@ const responseGuides = {
           <div ref={pdfRef} className="space-y-10">
 
             <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800">
+              <button
+                onClick={() => setOpenExecutiveSections(prev => ({ ...prev, organizacion: !prev.organizacion }))}
+                className="w-full flex justify-between items-center mb-8 text-left"
+              >
+                <div>
+                  <h2 className="text-2xl font-semibold text-white mb-2">
+                    Datos de la Organización
+                  </h2>
+
+                  <p className="text-zinc-500 text-lg">
+                    Información general utilizada para el informe ejecutivo.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3 text-amber-400">
+                  <span className="text-sm uppercase tracking-wider">
+                    {openExecutiveSections.organizacion ? 'Ocultar' : 'Ver más'}
+                  </span>
+                  <span className="text-3xl font-light">
+                    {openExecutiveSections.organizacion ? '−' : '+'}
+                  </span>
+                </div>
+              </button>
+
+              {openExecutiveSections.organizacion && (
+              <>
               <div className="flex flex-col lg:flex-row justify-between items-start gap-8 mb-10">
                 <div>
-                  <h1 className="text-5xl font-light tracking-wide mb-3 text-white">
+                  <h1 className="text-2xl font-semibold tracking-wide mb-3 text-white">
                     DANRA
                   </h1>
 
-                  <p className="text-xl text-zinc-400">
+                  <p className="text-lg text-zinc-400">
                     Informe Ejecutivo de Madurez Operativa
                   </p>
                 </div>
 
                 <div className="text-left lg:text-right">
-                  <p className="text-white text-xl font-semibold mb-1">
+                  <p className="text-2xl font-semibold text-white mb-2">
                     Daniel Racines
                   </p>
 
-                  <p className="text-zinc-500 leading-relaxed max-w-md">
+                  <p className="text-zinc-400 text-lg leading-relaxed max-w-md">
                     Asesor en Gobierno Operativo y Estrategia de Negocio
                   </p>
                 </div>
@@ -935,15 +962,37 @@ const responseGuides = {
                     {organizationData.fecha || '-'}
                   </p>
                 </div>
+
+                <div className="border border-zinc-800 rounded-2xl p-5 bg-black/30">
+                  <p className="text-zinc-500 text-sm mb-2 uppercase tracking-wide">
+                    Número de Contacto
+                  </p>
+
+                  <p className="text-white text-xl font-semibold">
+                    {organizationData.numero || '-'}
+                  </p>
+                </div>
+
+                <div className="border border-zinc-800 rounded-2xl p-5 bg-black/30">
+                  <p className="text-zinc-500 text-sm mb-2 uppercase tracking-wide">
+                    Colaboradores
+                  </p>
+
+                  <p className="text-white text-xl font-semibold">
+                    {organizationData.colaboradores || '-'}
+                  </p>
+                </div>
               </div>
-            </div>
+            </>
+          )}
+        </div>
 
             <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800">
               <button
                 onClick={() => setOpenExecutiveSections(prev => ({ ...prev, resumen: !prev.resumen }))}
                 className="w-full flex justify-between items-center mb-6 text-left"
               >
-                <h2 className="text-3xl font-semibold">
+                <h2 className="text-2xl font-semibold">
                   Resumen General de Madurez
                 </h2>
 
@@ -989,7 +1038,7 @@ const responseGuides = {
                   className="w-full flex justify-between items-center mb-6 text-left"
                 >
                   <div>
-                    <h3 className="text-2xl font-bold text-white mb-2">
+                    <h3 className="text-2xl font-semibold text-white mb-2">
                       Perfil Ejecutivo de Madurez Operativa
                     </h3>
                     <p className="text-zinc-500">
@@ -1075,7 +1124,7 @@ const responseGuides = {
                   className="w-full flex justify-between items-start mb-6 text-left"
                 >
                   <div>
-                    <h3 className="text-2xl font-bold mb-2">
+                    <h3 className="text-2xl font-semibold mb-2">
                       Interpretación Estratégica por Pilar
                     </h3>
                     <p className="text-zinc-500">
@@ -1129,7 +1178,7 @@ const responseGuides = {
             <div className="border border-zinc-800 rounded-3xl p-8 md:p-10 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black overflow-hidden">
               <div className="flex justify-between items-start gap-6 mb-10">
                 <div>
-                  <h3 className="text-2xl font-bold text-white mb-3">
+                  <h3 className="text-2xl font-semibold text-white mb-3">
                     Escalera Ejecutiva de Madurez
                   </h3>
 
@@ -1212,7 +1261,7 @@ const responseGuides = {
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-14">
               <div className="border border-violet-500/20 rounded-3xl p-8 bg-gradient-to-br from-violet-950/30 to-black/40">
-                <h4 className="text-2xl font-bold text-violet-400 mb-4">
+                <h4 className="text-2xl font-semibold text-violet-400 mb-4">
                   Próximo Paso Estratégico
                 </h4>
 
@@ -1224,7 +1273,7 @@ const responseGuides = {
               </div>
 
               <div className="border border-zinc-800 rounded-3xl p-8 bg-black/30">
-                <h4 className="text-2xl font-bold text-cyan-400 mb-6">
+                <h4 className="text-2xl font-semibold text-cyan-400 mb-6">
                   Impacto Esperado
                 </h4>
 
@@ -1245,7 +1294,7 @@ const responseGuides = {
             </div>
 
             <div className="border border-amber-700/30 rounded-3xl p-8 bg-gradient-to-br from-amber-950/40 to-zinc-950">
-              <h3 className="text-3xl font-semibold text-amber-400 mb-6">
+              <h3 className="text-2xl font-semibold text-amber-400 mb-6">
                 Generación de Informe Ejecutivo
               </h3>
 
@@ -1266,7 +1315,7 @@ const responseGuides = {
         {activePage === 'Descriptores de Nivel' && (
           <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800 mb-10 overflow-x-auto">
             <div className="mb-8">
-              <h2 className="text-3xl font-semibold mb-3">
+              <h2 className="text-2xl font-semibold mb-3">
                 Descriptores de Nivel por Pilar
               </h2>
               <p className="text-zinc-400 text-lg">
