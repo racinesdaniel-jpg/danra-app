@@ -375,27 +375,33 @@ const responseGuides = {
 
   const generateExecutivePDF = async () => {
     try {
+
+      setOpenExecutiveSections({
+        organizacion: true,
+        resumen: true,
+        perfil: true,
+        interpretacion: true,
+        escalera: true
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+
       const pdf = new jsPDF('p', 'mm', 'a4');
 
       const pageWidth = 210;
       const pageHeight = 297;
 
-      // =========================
-      // PORTADA
-      // =========================
-
       pdf.setFillColor(11, 11, 11);
       pdf.rect(0, 0, pageWidth, pageHeight, 'F');
 
       pdf.setTextColor(255, 255, 255);
-
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(30);
 
       pdf.text(
         'RESUMEN EJECUTIVO',
         pageWidth / 2,
-        110,
+        105,
         { align: 'center' }
       );
 
@@ -405,11 +411,12 @@ const responseGuides = {
       pdf.text(
         'Informe de Madurez Operativa',
         pageWidth / 2,
-        126,
+        122,
         { align: 'center' }
       );
 
-      pdf.setFontSize(14);
+      pdf.setFontSize(18);
+      pdf.setTextColor(255, 255, 255);
 
       pdf.text(
         organizationData.empresa?.trim()
@@ -420,77 +427,96 @@ const responseGuides = {
         { align: 'center' }
       );
 
-      // =========================
-      // SECCIONES PDF
-      // =========================
-
       const sections = document.querySelectorAll('.pdf-section');
 
       for (let i = 0; i < sections.length; i++) {
         const section = sections[i];
 
+        if (
+          section.innerText.includes('Generación de Informe Ejecutivo')
+        ) {
+          continue;
+        }
+
         const canvas = await html2canvas(section, {
           scale: 2,
           useCORS: true,
           backgroundColor: '#0B0B0B',
-          scrollY: -window.scrollY
+          scrollY: -window.scrollY,
+          windowWidth: section.scrollWidth,
+          windowHeight: section.scrollHeight
         });
 
         const imgData = canvas.toDataURL('image/png');
 
-        const imgWidth = 210;
+        const margin = 10;
+
+        const imgWidth = pageWidth - margin * 2;
 
         const imgHeight =
           (canvas.height * imgWidth) / canvas.width;
 
         pdf.addPage();
 
-        // Si la sección es demasiado alta
-        if (imgHeight > pageHeight) {
+        if (imgHeight <= 277) {
+          pdf.addImage(
+            imgData,
+            'PNG',
+            margin,
+            10,
+            imgWidth,
+            imgHeight
+          );
+        } else {
           let heightLeft = imgHeight;
-          let position = 0;
+
+          let position = 10;
 
           pdf.addImage(
             imgData,
             'PNG',
-            0,
+            margin,
             position,
             imgWidth,
             imgHeight
           );
 
-          heightLeft -= pageHeight;
+          heightLeft -= 277;
 
           while (heightLeft > 0) {
-            position = heightLeft - imgHeight;
+            position = heightLeft - imgHeight + 10;
 
             pdf.addPage();
 
             pdf.addImage(
               imgData,
               'PNG',
-              0,
+              margin,
               position,
               imgWidth,
               imgHeight
             );
 
-            heightLeft -= pageHeight;
+            heightLeft -= 277;
           }
-        } else {
-          pdf.addImage(
-            imgData,
-            'PNG',
-            0,
-            0,
-            imgWidth,
-            imgHeight
-          );
         }
       }
 
+      const totalPages = pdf.internal.getNumberOfPages();
+
+      const lastPage = pdf.internal.pages[totalPages];
+
+      if (
+        lastPage &&
+        lastPage.length <= 3
+      ) {
+        pdf.deletePage(totalPages);
+      }
+
       const companyName =
-        organizationData.empresa?.trim() || 'Organizacion';
+        organizationData.empresa?.trim()
+          ? organizationData.empresa
+          : 'Organizacion';
 
       pdf.save(
         `${companyName}-Resumen-Ejecutivo-DANRA.pdf`
