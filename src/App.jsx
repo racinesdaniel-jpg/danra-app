@@ -391,8 +391,15 @@ const responseGuides = {
       const pageWidth = 210;
       const pageHeight = 297;
 
-      pdf.setFillColor(11, 11, 11);
+      pdf.setFillColor(5, 5, 5);
       pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+
+      pdf.setDrawColor(245, 158, 11);
+      pdf.setLineWidth(1.2);
+      pdf.roundedRect(15, 25, 180, 240, 8, 8);
+
+      pdf.setFillColor(245, 158, 11);
+      pdf.circle(105, 55, 2.5, 'F');
 
       pdf.setTextColor(255, 255, 255);
       pdf.setFont('helvetica', 'bold');
@@ -401,7 +408,7 @@ const responseGuides = {
       pdf.text(
         'RESUMEN EJECUTIVO',
         pageWidth / 2,
-        105,
+        92,
         { align: 'center' }
       );
 
@@ -411,11 +418,21 @@ const responseGuides = {
       pdf.text(
         'Informe de Madurez Operativa',
         pageWidth / 2,
-        122,
+        114,
         { align: 'center' }
       );
 
-      pdf.setFontSize(18);
+      pdf.setFontSize(10);
+      pdf.setTextColor(245, 158, 11);
+
+      pdf.text(
+        'EVALUACIÓN ESTRATÉGICA DE MADUREZ OPERATIVA',
+        pageWidth / 2,
+        140,
+        { align: 'center' }
+      );
+
+      pdf.setFontSize(22);
       pdf.setTextColor(255, 255, 255);
 
       const organizationName =
@@ -426,7 +443,7 @@ const responseGuides = {
       pdf.text(
         organizationName,
         pageWidth / 2,
-        142,
+        165,
         { align: 'center' }
       );
 
@@ -464,23 +481,24 @@ const responseGuides = {
 
         pdf.addPage();
 
-        const pageContentHeight = pageHeight - 10;
+        const pageContentHeight = pageHeight;
+        const safeBottomMargin = 8;
 
         let remainingHeight = imgHeight;
         let position = 0;
 
-        while (remainingHeight > 0) {
+        while (remainingHeight > safeBottomMargin) {
           pdf.addImage(
             imgData,
             'PNG',
             margin,
-            5 - position,
+            0 - position,
             imgWidth,
             imgHeight
           );
 
-          remainingHeight -= pageContentHeight;
-          position += pageContentHeight;
+          remainingHeight -= (pageContentHeight - safeBottomMargin);
+          position += (pageContentHeight - safeBottomMargin);
 
           if (remainingHeight > 0) {
             pdf.addPage();
@@ -786,7 +804,10 @@ const responseGuides = {
                   type="date"
                   value={organizationData.fecha}
                   onChange={(e) => handleOrganizationData('fecha', e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-amber-500"
+                  style={{
+                    colorScheme: 'dark'
+                  }}
+                  className="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-amber-500 cursor-pointer [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                 />
               </div>
 
@@ -930,7 +951,7 @@ const responseGuides = {
         {activePage === 'Resumen Ejecutivo' && (
           <div ref={pdfRef} className="space-y-10">
 
-            <div className="pdf-section bg-zinc-900 rounded-3xl p-10 border border-zinc-800">
+            <div className="pdf-section bg-zinc-900 rounded-3xl p-10 border border-zinc-800 break-inside-avoid">
               <button
                 onClick={() => setOpenExecutiveSections(prev => ({ ...prev, organizacion: !prev.organizacion }))}
                 className="w-full flex justify-between items-center mb-8 text-left"
@@ -1065,7 +1086,7 @@ const responseGuides = {
           )}
         </div>
 
-            <div className="pdf-section bg-zinc-900 rounded-3xl p-10 border border-zinc-800">
+            <div className="pdf-section bg-zinc-900 rounded-3xl p-10 border border-zinc-800 break-inside-avoid">
               <button
                 onClick={() => setOpenExecutiveSections(prev => ({ ...prev, resumen: !prev.resumen }))}
                 className="w-full flex justify-between items-center mb-6 text-left"
