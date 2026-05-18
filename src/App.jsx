@@ -807,7 +807,7 @@ const responseGuides = {
                   style={{
                     colorScheme: 'dark'
                   }}
-                  className="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-amber-500 cursor-pointer [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                  className="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-zinc-400 focus:outline-none focus:border-amber-500 cursor-pointer [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-70 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:invert-[0.65] [&::-webkit-calendar-picker-indicator]:brightness-50"
                 />
               </div>
 
