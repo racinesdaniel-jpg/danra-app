@@ -1,5 +1,9 @@
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword
+} from 'firebase/auth';
+
 import React, { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './firebase';
 
 export default function Login({ onLogin }) {
@@ -66,7 +70,12 @@ export default function Login({ onLogin }) {
         >
           Ingresar
         </button>
-
+<p
+  onClick={handleRegister}
+  className="text-center text-sm text-zinc-400 mt-4 cursor-pointer hover:text-amber-400 transition-all"
+>
+  ¿No tienes cuenta? Crear cuenta
+</p>
       </form>
     </div>
   );
