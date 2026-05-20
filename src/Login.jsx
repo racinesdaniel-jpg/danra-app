@@ -9,12 +9,18 @@ import { auth } from './firebase';
 
 export default function Login({ onLogin }) {
 
+  const [isRegister, setIsRegister] = useState(false);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
   const [error, setError] = useState('');
 
   const handleLogin = async (e) => {
+
     e.preventDefault();
+
+    setError('');
 
     try {
 
@@ -32,7 +38,11 @@ export default function Login({ onLogin }) {
     }
   };
 
-  const handleRegister = async () => {
+  const handleRegister = async (e) => {
+
+    e.preventDefault();
+
+    setError('');
 
     try {
 
@@ -44,6 +54,8 @@ export default function Login({ onLogin }) {
 
       alert('Cuenta creada correctamente');
 
+      setIsRegister(false);
+
     } catch (err) {
 
       setError('No se pudo crear la cuenta');
@@ -51,15 +63,16 @@ export default function Login({ onLogin }) {
   };
 
   return (
+
     <div className="min-h-screen bg-black flex items-center justify-center p-6">
 
       <form
-        onSubmit={handleLogin}
+        onSubmit={isRegister ? handleRegister : handleLogin}
         className="bg-zinc-900 p-10 rounded-3xl border border-zinc-800 w-full max-w-md"
       >
 
         <h1 className="text-5xl font-bold text-white mb-10">
-          Acceso DANRA
+          {isRegister ? 'Crear Cuenta' : 'Acceso DANRA'}
         </h1>
 
         <div className="space-y-5">
@@ -90,14 +103,21 @@ export default function Login({ onLogin }) {
             type="submit"
             className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-4 rounded-2xl"
           >
-            Ingresar
+            {isRegister ? 'Crear Cuenta' : 'Ingresar'}
           </button>
 
           <p
-            onClick={handleRegister}
+            onClick={() => {
+              setIsRegister(!isRegister);
+              setError('');
+            }}
             className="text-center text-sm text-zinc-400 mt-4 cursor-pointer hover:text-amber-400 transition-all"
           >
-            ¿No tienes cuenta? Crear cuenta
+
+            {isRegister
+              ? '¿Ya tienes cuenta? Iniciar sesión'
+              : '¿No tienes cuenta? Crear cuenta'}
+
           </p>
 
         </div>
