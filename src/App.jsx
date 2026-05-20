@@ -1,5 +1,5 @@
-import Login from "./Login";
 import React, { useState, useRef } from 'react';
+import Login from "./Login";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import {
@@ -12,15 +12,17 @@ import {
 } from 'recharts';
 
 export default function DanraOperationalMaturityApp() {
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-if (!isAuthenticated) {
-  return (
-    <Login
-      onLogin={() => setIsAuthenticated(true)}
-    />
-  );
-}
+  if (!isAuthenticated) {
+    return (
+      <Login
+        onLogin={() => setIsAuthenticated(true)}
+      />
+    );
+  }
+  
   const pillars = [
     {
       name: 'Gobierno Operativo',
