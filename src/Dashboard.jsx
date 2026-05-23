@@ -10,7 +10,7 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
-export default function DanraOperationalMaturityApp() {
+export default function Dashboard()
   const pillars = [
     {
       name: 'Gobierno Operativo',
@@ -473,6 +473,7 @@ const responseGuides = {
 
         const canvas = await html2canvas(section, {
           scale: 2,
+          scrollX: 0,
           useCORS: true,
           backgroundColor: '#0B0B0B',
           scrollY: -window.scrollY,
@@ -850,11 +851,29 @@ const responseGuides = {
 
               return (
                 <div
+                  id={`pillar-${index}`}
                   key={index}
                   className="bg-zinc-900 rounded-3xl border border-zinc-800 overflow-hidden"
                 >
                   <button
-                    onClick={() => setOpenPillar(isOpen ? null : index)}
+                    onClick={() => {
+                      const nextValue = isOpen ? null : index;
+
+                      setOpenPillar(nextValue);
+
+                      if (!isOpen) {
+                        setTimeout(() => {
+                          const section = document.getElementById(`pillar-${index}`);
+
+                          if (section) {
+                            section.scrollIntoView({
+                              behavior: 'smooth',
+                              block: 'start'
+                            });
+                          }
+                        }, 100);
+                      }
+                    }}
                     className="w-full flex justify-between items-center p-8 hover:bg-zinc-800/30 transition-all text-left"
                   >
                     <div>
@@ -1158,11 +1177,11 @@ const responseGuides = {
 
                 {openExecutiveSections.perfil && (
                   <div className="w-full py-6">
-  <ResponsiveContainer width="100%" height={520}>
+  <ResponsiveContainer width="100%" height={760}>
     <RadarChart
       data={radarData}
-      outerRadius="72%"
-      margin={{ top: 120, right: 260, bottom: 120, left: 260 }}
+      outerRadius="88%"
+      margin={{ top: 80, right: 180, bottom: 80, left: 180 }}
     >
       <PolarGrid stroke="#52525B" />
 
@@ -1316,14 +1335,14 @@ const responseGuides = {
                     </p>
                   </div>
 
-                  <div className="overflow-x-auto py-2">
-                    <div className="min-w-[1050px] flex items-end gap-5 h-[320px] px-6 pt-10 pb-8 border-b border-zinc-800">
+                  <div className="overflow-x-auto py-6">
+                    <div className="min-w-[1180px] flex items-end gap-5 h-[380px] px-10 pt-16 pb-10 border-b border-zinc-800">
                       {[
                         { level: '1', title: 'Reactivo', color: 'from-red-950 to-red-800 border-red-500', active: overallScore <= 1.5, height: 'h-[140px]', description: 'Responde a problemas cuando ocurren.' },
                         { level: '2', title: 'Inicial', color: 'from-orange-950 to-orange-800 border-orange-500', active: overallScore > 1.5 && overallScore <= 2.5, height: 'h-[170px]', description: 'Comienza a definir procesos básicos.' },
                         { level: '3', title: 'Estructurado', color: 'from-yellow-950 to-yellow-800 border-yellow-500', active: overallScore > 2.5 && overallScore <= 3.5, height: 'h-[230px]', description: 'Procesos definidos y seguimiento operativo.' },
                         { level: '4', title: 'Gestionado', color: 'from-green-950 to-green-800 border-green-500', active: overallScore > 3.5 && overallScore <= 4.5, height: 'h-[290px]', description: 'Operación controlada con KPIs y seguimiento.' },
-                        { level: '5', title: 'Optimizado', color: 'from-cyan-950 to-cyan-800 border-cyan-500', active: overallScore > 4.5, height: 'h-[340px]', description: 'Mejora continua e innovación sistemática.' }
+                        { level: '5', title: 'Optimizado', color: 'from-cyan-950 to-cyan-800 border-cyan-500', active: overallScore > 4.5, height: 'h-[300px]', description: 'Mejora continua e innovación sistemática.' }
                       ].map((item, idx) => (
                         <div key={idx} className="flex-1 flex flex-col items-center">
                           <div className="text-zinc-300 text-base mb-4 font-semibold tracking-wide">
