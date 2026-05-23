@@ -10,7 +10,7 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
-export default function Dashboard()
+export default function Dashboard() {
   const pillars = [
     {
       name: 'Gobierno Operativo',
