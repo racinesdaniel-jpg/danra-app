@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import Login from './Login';
 
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -13,19 +12,9 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
-export default function Dashboard()
+export default function Dashboard() {
 
-  // LOGIN
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // SI NO ESTÁ LOGUEADO
-  if (!isAuthenticated) {
-    return (
-      <Login
-        onLogin={() => setIsAuthenticated(true)}
-      />
-    );
-  }
 
   // =========================
   // DESDE AQUÍ EMPIEZA TU APP
