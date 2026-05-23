@@ -14,6 +14,8 @@ export default function Login({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const [error, setError] = useState('');
 
   const handleLogin = async (e) => {
@@ -44,6 +46,15 @@ export default function Login({ onLogin }) {
 
     setError('');
 
+    if (password.length < 6) {
+
+      setError(
+        'La contraseña debe tener mínimo 6 caracteres.'
+      );
+
+      return;
+    }
+
     try {
 
       await createUserWithEmailAndPassword(
@@ -58,7 +69,9 @@ export default function Login({ onLogin }) {
 
     } catch (err) {
 
-      setError('No se pudo crear la cuenta');
+      setError(
+        'No se pudo crear la cuenta. Verifica el correo o utiliza una contraseña más segura.'
+      );
     }
   };
 
@@ -85,13 +98,38 @@ export default function Login({ onLogin }) {
             className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4 text-white"
           />
 
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4 text-white"
-          />
+          <div className="relative">
+
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4 text-white"
+            />
+
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 text-sm"
+            >
+              {showPassword ? 'Ocultar' : 'Ver'}
+            </button>
+
+          </div>
+
+          {isRegister && (
+
+            <div className="text-xs text-zinc-500 leading-relaxed">
+              La contraseña debe tener:
+              <ul className="mt-2 list-disc pl-5 space-y-1">
+                <li>Mínimo 6 caracteres</li>
+                <li>Idealmente letras y números</li>
+                <li>Se recomienda usar símbolos especiales</li>
+              </ul>
+            </div>
+
+          )}
 
           {error && (
             <p className="text-red-400 text-sm">
@@ -101,7 +139,7 @@ export default function Login({ onLogin }) {
 
           <button
             type="submit"
-            className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-4 rounded-2xl"
+            className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-4 rounded-2xl transition-all"
           >
             {isRegister ? 'Crear Cuenta' : 'Ingresar'}
           </button>
