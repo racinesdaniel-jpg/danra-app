@@ -1,14 +1,28 @@
-import React, { useState, useRef } from 'react';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import React, { useState, useRef, useEffect } from 'react';
+
 import {
-  Radar,
   RadarChart,
   PolarGrid,
   PolarAngleAxis,
   PolarRadiusAxis,
+  Radar,
   ResponsiveContainer
 } from 'recharts';
+
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
+import { db, auth } from './firebase';
+
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  getDocs,
+  query,
+  orderBy
+} from 'firebase/firestore';
+
 
 export default function Dashboard() {
   const pillars = [
@@ -299,32 +313,98 @@ const responseGuides = {
 
   const answeredQuestions = Object.keys(answers).length;
 
-  const isAssessmentComplete = answeredQuestions === totalQuestions;
+const isAssessmentComplete = answeredQuestions === totalQuestions;
 
-  const overallScore = pillars.reduce(
-    (acc, pillar) => acc + calculatePillarScore(pillar),
-    0
-  ) / pillars.length;
+const overallScore = pillars.reduce(
+  (acc, pillar) => acc + calculatePillarScore(pillar),
+  0
+) / pillars.length;
 
-  const pages = [
-    'Instrucciones',
-    'Datos de la Organización',
-    'Preguntas de Diagnóstico',
-    'Resumen Ejecutivo',
-    'Descriptores de Nivel'
-  ];
+const currentUser = auth.currentUser;
 
-  const [activePage, setActivePage] = useState('Instrucciones');
-  const [openPillar, setOpenPillar] = useState(null);
-  const [openExecutiveSections, setOpenExecutiveSections] = useState({
-    organizacion: true,
-    resumen: true,
-    perfil: true,
-    interpretacion: true,
-    escalera: true
-  });
+const isAdmin =
+  currentUser?.email === 'racinesdaniel@gmail.com';
+
+const pages = [
+  'Instrucciones',
+  'Datos de la Organización',
+  'Preguntas de Diagnóstico',
+  'Resumen Ejecutivo',
+  'Descriptores de Nivel',
+  ...(isAdmin ? ['Administración'] : [])
+];
+
+const [activePage, setActivePage] = useState('Instrucciones');
+const [openPillar, setOpenPillar] = useState(null);
+
+const [diagnosticos, setDiagnosticos] = useState([]);
+const [loadingDiagnosticos, setLoadingDiagnosticos] = useState(false);
+const [search, setSearch] = useState('');
+
+const [selectedDiagnostico, setSelectedDiagnostico] = useState(null);
+
+const respuestasAgrupadas = selectedDiagnostico?.respuestas
+  ? Object.entries(selectedDiagnostico.respuestas).reduce(
+      (acc, [pregunta, valor]) => {
+
+        const pilar = pregunta.split('-')[0];
+
+        if (!acc[pilar]) {
+          acc[pilar] = [];
+        }
+
+        acc[pilar].push({
+          pregunta,
+          valor
+        });
+
+        return acc;
+
+      },
+      {}
+    )
+  : {};
+
+const [openExecutiveSections, setOpenExecutiveSections] = useState({
+  organizacion: true,
+  resumen: true,
+  perfil: true,
+  interpretacion: true,
+  escalera: true
+});
 
   const pdfRef = useRef();
+
+  const loadDiagnosticos = async () => {
+  try {
+    setLoadingDiagnosticos(true);
+
+    const q = query(
+      collection(db, 'diagnosticos'),
+      orderBy('fecha', 'desc')
+    );
+
+    const snapshot = await getDocs(q);
+
+    const data = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    setDiagnosticos(data);
+
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoadingDiagnosticos(false);
+  }
+};
+
+useEffect(() => {
+  if (activePage === 'Administración') {
+    loadDiagnosticos();
+  }
+}, [activePage]);
 
   const radarData = pillars.map((pillar) => ({
     pillar: pillar.name,
@@ -373,8 +453,41 @@ const responseGuides = {
 
   const currentMaturityLevel = getMaturity(overallScore || 0);
 
+  const saveDiagnosis = async () => {
+  try {
+    await addDoc(collection(db, "diagnosticos"), {
+  empresa: organizationData.empresa || "",
+  giro: organizationData.giro || "",
+  contacto: organizationData.contacto || "",
+  cargo: organizationData.cargo || "",
+  consultor: "Daniel Racines",
+
+  nivelMadurez: Number(overallScore.toFixed(1)),
+  nivelTexto: currentMaturityLevel,
+
+  fecha: serverTimestamp(),
+
+  organizationData,
+
+  respuestas: answers,
+
+  radarData,
+
+  totalPreguntas: totalQuestions,
+
+  preguntasRespondidas: answeredQuestions
+});
+
+    console.log("Diagnóstico guardado correctamente");
+  } catch (error) {
+    console.error("Error guardando diagnóstico:", error);
+  }
+};
+
   const generateExecutivePDF = async () => {
     try {
+
+      await saveDiagnosis();
 
       setOpenExecutiveSections({
         organizacion: true,
@@ -1430,6 +1543,374 @@ const responseGuides = {
             </div>
           </div>
         )}
+
+        {activePage === 'Administración' && (
+  <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800">
+
+    <h2 className="text-3xl font-bold mb-6">
+      Administración de Diagnósticos
+    </h2>
+
+    <div className="grid grid-cols-4 gap-4 mb-8">
+
+  <div className="bg-zinc-950 p-6 rounded-xl">
+    <div className="text-zinc-400 text-sm">
+      Diagnósticos
+    </div>
+    <div className="text-3xl font-bold">
+      {diagnosticos.length}
+    </div>
+  </div>
+
+  <div className="bg-zinc-950 p-6 rounded-xl">
+    <div className="text-zinc-400 text-sm">
+      Empresas
+    </div>
+    <div className="text-3xl font-bold">
+      {[...new Set(diagnosticos.map(d => d.empresa))].length}
+    </div>
+  </div>
+
+  <div className="bg-zinc-950 p-6 rounded-xl">
+    <div className="text-zinc-400 text-sm">
+      Promedio
+    </div>
+    <div className="text-3xl font-bold">
+      {diagnosticos.length
+        ? (
+            diagnosticos.reduce(
+              (a,b) => a + Number(b.nivelMadurez || 0),
+              0
+            ) / diagnosticos.length
+          ).toFixed(1)
+        : 0}
+    </div>
+  </div>
+
+  <div className="bg-zinc-950 p-6 rounded-xl">
+    <div className="text-zinc-400 text-sm">
+      Consultores
+    </div>
+    <div className="text-3xl font-bold">
+      {[...new Set(diagnosticos.map(d => d.consultor))].length}
+    </div>
+  </div>
+
+</div>
+
+<input
+  type="text"
+  placeholder="Buscar empresa..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  className="w-full mb-6 bg-zinc-950 border border-zinc-700 rounded-xl p-4 text-white"
+/>
+
+    {loadingDiagnosticos ? (
+      <p>Cargando diagnósticos...</p>
+    ) : (
+      <div className="overflow-auto">
+
+        <table className="w-full text-left">
+
+          <thead>
+            <tr className="border-b border-zinc-700">
+              <th className="p-3">Empresa</th>
+              <th className="p-3">Consultor</th>
+              <th className="p-3">Nivel</th>
+              <th className="p-3">Fecha</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            {diagnosticos
+  .filter(item =>
+    item.empresa?.toLowerCase()
+      .includes(search.toLowerCase())
+  )
+  .map((item) => (
+
+              <tr
+                key={item.id}
+                className="border-b border-zinc-800"
+              >
+                <td className="p-3">
+                  {item.empresa}
+                </td>
+
+                <td className="p-3">
+                  {item.consultor}
+                </td>
+
+                <td className="p-3">
+                  {item.nivelMadurez}
+                </td>
+
+                <td className="p-3">
+                  {item.fecha?.toDate
+                    ? item.fecha.toDate().toLocaleString()
+                    : ''}
+                </td>
+
+                <td className="p-3">
+  <div className="flex gap-2">
+
+    <button
+    onClick={() => setSelectedDiagnostico(item)}
+      className="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm"
+    >
+      Ver
+    </button>
+
+    <button
+      className="px-3 py-1 rounded-lg bg-red-600 hover:bg-red-500 text-white text-sm"
+    >
+      Eliminar
+    </button>
+
+  </div>
+</td>
+
+              </tr>
+
+            ))}
+
+          </tbody>
+
+        </table>
+
+      </div>
+    )}
+
+    {selectedDiagnostico && (
+  <div className="mt-8 bg-zinc-950 border border-zinc-800 rounded-2xl p-8">
+
+    <h3 className="text-2xl font-bold mb-6">
+      {selectedDiagnostico.empresa}
+    </h3>
+
+    <div className="grid grid-cols-2 gap-6">
+
+      <div>
+        <div className="text-zinc-400 text-sm">Consultor</div>
+        <div>{selectedDiagnostico.consultor}</div>
+      </div>
+
+      <div>
+        <div className="text-zinc-400 text-sm">Contacto</div>
+        <div>{selectedDiagnostico.contacto}</div>
+      </div>
+
+      <div>
+        <div className="text-zinc-400 text-sm">Cargo</div>
+        <div>{selectedDiagnostico.cargo}</div>
+      </div>
+
+      <div>
+        <div className="text-zinc-400 text-sm">Giro</div>
+        <div>{selectedDiagnostico.giro}</div>
+      </div>
+
+<div>
+  <div className="text-zinc-400 text-sm">
+    Fecha Evaluación
+  </div>
+
+  <div>
+    {selectedDiagnostico.fecha?.seconds
+      ? new Date(
+          selectedDiagnostico.fecha.seconds * 1000
+        ).toLocaleDateString()
+      : 'Sin fecha'}
+  </div>
+</div>
+
+<div>
+  <div className="text-zinc-400 text-sm">
+    Preguntas Respondidas
+  </div>
+
+  <div>
+    {selectedDiagnostico.preguntasRespondidas || 0}
+    /
+    {selectedDiagnostico.totalPreguntas || 21}
+  </div>
+</div>
+
+      <div>
+  <div className="text-zinc-400 text-sm">Nivel</div>
+
+  <div className="font-bold text-amber-400">
+    {selectedDiagnostico.nivelTexto}
+  </div>
+</div>
+
+<div className="col-span-2">
+  <h4 className="text-xl font-bold mt-10 mb-4">
+    Resultados por Pilar
+  </h4>
+
+<div className="grid lg:grid-cols-3 gap-6">
+
+  {/* Pilares */}
+  <div className="lg:col-span-1 flex flex-col justify-between h-[650px]">
+
+    {selectedDiagnostico.radarData?.map((pillar, idx) => (
+
+      <div
+        key={idx}
+        className="bg-zinc-900 rounded-lg p-4 flex justify-between items-center"
+      >
+        <span>{pillar.pillar}</span>
+
+        <span className="font-bold text-amber-400">
+          {pillar.score}
+        </span>
+
+      </div>
+
+    ))}
+
+  </div>
+
+  {/* Radar */}
+  <div className="lg:col-span-2 bg-zinc-900 rounded-xl p-4 h-[650px]
+flex items-center justify-center">
+
+    <ResponsiveContainer width="95%" height="95%">
+
+      <RadarChart
+  data={selectedDiagnostico.radarData}
+  outerRadius="65%"
+  margin={{
+    top: 70,
+    right: 90,
+    bottom: 70,
+    left: 90
+  }}
+>
+
+        <PolarGrid />
+
+        <PolarAngleAxis
+  dataKey="pillar"
+  tick={({ payload, x, y, textAnchor }) => {
+
+    const words = payload.value.split(' ');
+
+    const lines = [];
+
+    for (let i = 0; i < words.length; i += 2) {
+      lines.push(words.slice(i, i + 2).join(' '));
+    }
+
+    return (
+      <text
+        x={x}
+        y={y}
+        textAnchor={textAnchor}
+        fill="#ffffff"
+        fontSize="18"
+        fontWeight="600"
+      >
+        {lines.map((line, index) => (
+          <tspan
+            key={index}
+            x={x}
+            dy={index === 0 ? 0 : 20}
+          >
+            {line}
+          </tspan>
+        ))}
+      </text>
+    );
+  }}
+/>
+        
+
+        <PolarRadiusAxis
+  angle={90}
+  domain={[0, 5]}
+  tick={{ fill: '#f59e0b', fontSize: 14 }}
+/>
+
+        <Radar
+          dataKey="score"
+          stroke="#f59e0b"
+          fill="#f59e0b"
+          fillOpacity={0.5}
+        />
+
+      </RadarChart>
+
+    </ResponsiveContainer>
+
+  </div>
+
+</div>
+
+<h4 className="text-xl font-bold mt-10 mb-4">
+  Respuestas del Diagnóstico
+</h4>
+
+<div className="grid md:grid-cols-2 gap-6">
+
+
+  {Object.entries(respuestasAgrupadas).map(
+    ([pilar, preguntas], idx) => (
+
+      <div
+        key={idx}
+        className="bg-zinc-950 rounded-xl p-5 border border-zinc-800"
+      >
+
+        <h5 className="text-lg font-bold text-amber-400 mb-4">
+          {pilar}
+        </h5>
+
+        <div className="space-y-2">
+
+          {preguntas.map((item, i) => (
+
+            <div
+              key={i}
+              className="bg-zinc-900 rounded-lg p-3 flex justify-between"
+            >
+
+              <span className="text-zinc-300">
+                {item.pregunta.replace(
+                  pilar + '-',
+                  ''
+                )}
+              </span>
+
+              <span className="font-bold text-amber-400">
+                {item.valor}
+              </span>
+
+            </div>
+
+          ))}
+
+        </div>
+
+      </div>
+
+    )
+  )}
+
+</div>
+
+      </div>
+
+    </div>
+
+  </div>
+)}
+
+  </div>
+)}
 
         {activePage === 'Descriptores de Nivel' && (
           <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800 mb-10 overflow-x-auto">
